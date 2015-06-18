@@ -41,7 +41,10 @@ class Hash implements HashIF
 
     protected function set_hash_readonly_keys($keys)
     {
-        $this->_readonly_keys = $keys;
+        foreach($keys as $k)
+        {
+            $this->_readonly_keys[$k] = true;
+        }
     }
 
     /**
@@ -57,7 +60,7 @@ class Hash implements HashIF
             return false;
         }
 
-        if (in_array($key, $this->_readonly_keys))
+        if (in_array($key, array_keys($this->_readonly_keys)) && $this->_readonly_keys[$key] === true)
         {
             return false;
         }
@@ -323,7 +326,8 @@ class Hash implements HashIF
     {
         return [
             'option' => $this->_option,
-            'data' => $this->_array
+            'data' => $this->_array,
+            'readonly' => $this->_readonly_keys
         ];
     }
 
