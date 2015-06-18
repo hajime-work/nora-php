@@ -34,12 +34,12 @@ class Hash implements HashIF
         return $hash;
     }
 
-    protected function _set_option($option)
+    protected function set_hash_option($option)
     {
         $this->_option = $option;
     }
 
-    protected function _set_readOnly($keys)
+    protected function set_hash_readonly_keys($keys)
     {
         $this->_readonly_keys = $keys;
     }
