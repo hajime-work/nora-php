@@ -24,6 +24,7 @@ class Hash implements HashIF
     private $_array = [];
     private $_handlers = [];
     private $_option = self::OPT_DEFAULT;
+    private $_readonly_keys = [];
 
     static public function newHash($default = [], $option = 0)
     {
@@ -31,6 +32,37 @@ class Hash implements HashIF
         $hash->_option = $option;
         $hash->initValues($default);
         return $hash;
+    }
+
+    protected function _set_option($option)
+    {
+        $this->_option = $option;
+    }
+
+    protected function _set_readOnly($keys)
+    {
+        $this->_readonly_keys = $keys;
+    }
+
+    /**
+     * セットできるキーかチェックする
+     *
+     * @param string $key
+     * @return bool
+     */
+    protected function _check_is_allow_set($key)
+    {
+        if (!$this->hasVal($key) && !$this->isAllowUndefinedKeySet())
+        {
+            return false;
+        }
+
+        if (in_array($key, $this->_readonly_keys))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -165,21 +197,6 @@ class Hash implements HashIF
         unset($this->_array[$key]);
     }
 
-    /**
-     * セットできるキーかチェックする
-     *
-     * @param string $key
-     * @return bool
-     */
-    protected function _check_is_allow_set($key)
-    {
-        if (!$this->hasVal($key) && !$this->isAllowUndefinedKeySet())
-        {
-            return false;
-        }
-
-        return true;
-    }
 
     # 拡張機能 {{{
 
