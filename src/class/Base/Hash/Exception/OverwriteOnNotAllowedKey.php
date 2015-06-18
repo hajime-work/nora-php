@@ -12,10 +12,10 @@ use Nora\Base\Hash\HashIF;
 use Nora\Nora;
 
 
-class HashKeyNotExists extends Exception
+class OverwriteOnNotAllowedKey extends Exception
 {
     public function __construct(HashIF $hash, $key)
     {
-        parent::__construct(Nora::message('ハッシュキー %s は定義されていません。(%s)', [$key, get_class($hash)]));
+        parent::__construct(Nora::message('ハッシュキー %s は上書きが禁止されています。(%s)', [$key, get_class($hash)]));
     }
 }
