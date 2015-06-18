@@ -25,6 +25,7 @@ class Hash implements HashIF
     private $_handlers = [];
     private $_option = self::OPT_DEFAULT;
     private $_readonly_keys = [];
+    private $_no_overwrite = [];
 
     static public function newHash($default = [], $option = 0)
     {
@@ -48,6 +49,17 @@ class Hash implements HashIF
     }
 
     /**
+     * 上書き禁止にする
+     */
+    protected function set_hash_no_overwrite($keys)
+    {
+        foreach($keys as $k)
+        {
+            $this->_no_overwrite[$k] = true;
+        }
+    }
+
+    /**
      * セットできるキーかチェックする
      *
      * @param string $key
@@ -59,6 +71,7 @@ class Hash implements HashIF
         {
             return false;
         }
+
 
         if (in_array($key, array_keys($this->_readonly_keys)) && $this->_readonly_keys[$key] === true)
         {
@@ -161,6 +174,11 @@ class Hash implements HashIF
         if (!$this->_check_is_allow_set($key))
         {
             throw new Exception\SetOnNotAllowedKey($this, $key);
+        }
+
+        if ($this->hasVal($key) && in_array($key, array_keys($this->_no_overwrite)) && $this->_no_overwrite[$key] === true)
+        {
+            throw new Exception\OverwriteOnNotAllowedKey($this, $key);
         }
 
         return $this->_setVal($key, $value);
@@ -300,6 +318,12 @@ class Hash implements HashIF
     public function toArray( )
     {
         return iterator_to_array($this);
+    }
+
+    public function reverse( )
+    {
+        $this->_array = array_reverse($this->_array);
+        return $this;
     }
 
     # }}}
