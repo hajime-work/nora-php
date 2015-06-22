@@ -12,11 +12,31 @@ namespace Nora\Component;
 use Nora\Base\Component\Componentable;
 use Nora\Base\Configuration\Configure as Base;
 
-class Configure extends Base
+/**
+ * 基礎コンポーネント
+ *
+ * 設定値を保持するオブジェクト
+ */
+class Configure
 {
     use Componentable;
 
     protected function initComponentImpl( )
     {
+    }
+
+    public function __invoke($client, $params)
+    {
+        if (!isset($client->configure))
+        {
+            $client->scope()->setWriteOnceProp('configure', new Base());
+        }
+
+        if (empty($params))
+        {
+            return $client->configure;
+        }
+
+        return call_user_func_array([$client->configure, 'read'], $params);
     }
 }

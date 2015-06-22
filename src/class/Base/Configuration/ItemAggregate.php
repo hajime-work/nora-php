@@ -30,6 +30,11 @@ class ItemAggregate extends Item implements ArrayAccess
         $this->setValue($data);
     }
 
+    /**
+     * 値をセットする
+     *
+     * @param array $data
+     */
     public function setValue($data)
     {
         $this->write($data);
@@ -37,8 +42,6 @@ class ItemAggregate extends Item implements ArrayAccess
 
     /**
      * 設定を書き込む
-     *
-     * self::SEP 区切りをパースする
      *
      * @param string $name
      * @param mixed $value
@@ -77,8 +80,6 @@ class ItemAggregate extends Item implements ArrayAccess
     /**
      * 設定があるか
      *
-     * self::SEP 区切りをパースする
-     *
      * @param string $name
      * @param string $default
      * @param mixed $value
@@ -112,8 +113,6 @@ class ItemAggregate extends Item implements ArrayAccess
     /**
      * 設定を消す
      *
-     * self::SEP 区切りをパースする
-     *
      * @param string $name
      * @return void
      */
@@ -146,8 +145,6 @@ class ItemAggregate extends Item implements ArrayAccess
 
     /**
      * 設定を読み込む
-     *
-     * self::SEP 区切りをパースする
      *
      * @param string $name
      * @param string $default
@@ -236,26 +233,43 @@ class ItemAggregate extends Item implements ArrayAccess
         return $item;
     }
 
+    /**
+     * @NoHelp
+     */
     public function &offsetGet($key)
     {
         return $this->read[$key];
     }
 
+    /**
+     * @NoHelp
+     */
     public function offsetSet($key, $value)
     {
         $this->write($key, $value);
     }
 
+    /**
+     * @NoHelp
+     */
     public function offsetExists($key)
     {
         return $this->has($key);
     }
 
+    /**
+     * @NoHelp
+     */
     public function offsetUnset($key)
     {
        $this->del($key);
     }
 
+    /**
+     * 配列にする
+     *
+     * @return array
+     */
     public function toArray()
     {
         $ret = [];

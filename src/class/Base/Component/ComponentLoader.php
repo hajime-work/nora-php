@@ -18,36 +18,8 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     {
         $this->_namespace_list = Nora::hash();
         $this->_cash_list = Nora::hash();
-
-        // ヘルパーを作成する
-        $this
-            ->scope()
-            ->addCallMethod($this)
-            ->makeHelpers($this)
-            ->setVals([
-            'hoge' => 
-            /**
-             * ほげほげ
-             *
-             * @inject a
-             */
-            ['a', 
-            function ($a) {
-            }]
-
-        ]);
     }
 
-    /**
-     * ロードする
-     *
-     * @helper
-     * @inject scope
-     */
-    private function load ($s, $m)
-    {
-        var_Dump($s->getNames().'ロード:'.$m);
-    }
 
     public function isCallable($name, $value, $client)
     {
@@ -63,14 +35,23 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         return false;
     }
 
-    public function call($name, $value, $client)
+    public function call($name, $params, $client)
     {
         if (!isset($this->_cash_list[$name]))
         {
             $this->_cash_list[$name] = $this->_create($name);
         }
 
-        return  $this->_cash_list[$name];
+        $cmp =  $this->_cash_list[$name];
+        if (!is_callable($cmp))
+        {
+            return $cmp;
+        }
+
+        return call_user_func_array($cmp, [
+            $client,
+            $params
+        ]);
     }
 
 
@@ -86,6 +67,8 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
                 );
             }
         }
+
+        throw new Exception\ComponentNotFound($name);
     }
 
     public function addNameSpace($string)

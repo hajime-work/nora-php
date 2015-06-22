@@ -10,6 +10,8 @@
 namespace Nora\Base;
 
 use Nora\Scope;
+use Nora\CLI\Output;
+use Nora\Util\Reflection\ReflectionClass;
 
 /**
  * ノラのベースクラス
@@ -37,6 +39,28 @@ class NoraEngine extends Component\Component
                     $this->scope()->newScope('ComponentLoader')
                 )
                 ->addNameSpace('Nora\Component') // デフォルトのネームスペースをロード対象にする
-        );
+            );
+
+    }
+
+    /**
+     * ヘルプを表示する
+     */
+    public function help($object)
+    {
+        $rc = new ReflectionClass($object);
+        $list = [];
+        foreach($rc->getPublicMethods() as $m)
+        {
+            if($m->hasAttr('NoHelp')) continue;
+
+            $list[] = [
+                " ".$m->toString(),
+                $m->comment()
+            ];
+        }
+        Output::title($rc->getName(), 'help');
+        Output::p($rc->comment());
+        Output::table($list);
     }
 }

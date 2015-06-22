@@ -35,7 +35,7 @@ trait Componentable
      * @return void
      *
      */
-    public function setScope(Scope\ScopeIF $scope)
+    protected function setScope(Scope\ScopeIF $scope)
     {
         $scope->setWriteOnceProp('owner', $this);
         $this->_scope = $scope;
@@ -46,7 +46,7 @@ trait Componentable
      *
      * @return bool
      */
-    public function hasScope( )
+    protected function hasScope( )
     {
         return !empty($this->_scope);
     }

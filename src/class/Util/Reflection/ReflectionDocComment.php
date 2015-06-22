@@ -6,20 +6,58 @@
  * @since 20150618
  * @author kurari@hajime.work
  */
-Namespace Nora\Util;
+Namespace Nora\Util\Reflection;
 
-use ReflectionMethod;
-use ReflectionFunction;
-use ReflectionClass;
+use Closure;
 
 /**
  * DocCommentを制御する
  */
-class DocComment
+class ReflectionDocComment
 {
     private $_txt;
     private $_attrs;
     private $_comment;
+
+    /**
+     * DocCommentを取得する
+     *
+     * @param mixed $object
+     * @return string 
+     */
+    static public function getDocCommentRaw($object)
+    {
+        if ($object instanceof ReflectionMethod || $object instanceof Injection\Spec)
+        {
+            return $object->getDocComment();
+        }
+
+        // オブジェクトを判定
+        if ( is_callable($object) && is_array($object) )
+        {
+            $rs = new ReflectionMethod($object[0], $object[1]);
+            return $rs->getDocComment();
+        }
+
+        if ($object instanceof Closure)
+        {
+            $rs = new ReflectionFunction($object);
+            return $rs->getDocComment();
+        }
+
+        if (is_array($object) && is_callable($object[count($object)-1]))
+        {
+            return self::getDocCommentRaw($object[count($object)-1]);
+        }
+
+        if (is_object($object))
+        {
+            $rs = new ReflectionClass($object);
+            return $rs->getDocComment();
+        }
+
+        throw new Exception\CantRetriveDocComment($object);
+    }
 
     /**
      * 作成する
@@ -29,8 +67,17 @@ class DocComment
      */
     static public function create($text)
     {
-        $dc = new DocComment($text);
-        return $dc;
+        if (!is_object($text))
+        {
+            $dc = new ReflectionDocComment($text);
+            return $dc;
+        }
+
+        return self::create(
+            self::getDocCommentRaw($text)
+        );
+
+
     }
 
     /**

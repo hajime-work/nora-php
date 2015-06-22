@@ -49,7 +49,7 @@ abstract class Component
     {
         if ($this->hasScope())
         {
-            return $this->scope()->__issset($key);
+            return $this->scope()->__isset($key);
         }
         return false;
     }

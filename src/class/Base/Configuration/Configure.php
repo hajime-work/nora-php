@@ -14,6 +14,8 @@ namespace Nora\Base\Configuration;
  */
 class Configure extends ItemAggregate
 {
+    private $_loaded_files = [];
+
     /**
      * 設定をディレクトリから読む
      *
@@ -61,11 +63,29 @@ class Configure extends ItemAggregate
 
     private function loadFile($file, $name = null)
     {
+        if (in_array($file, $this->_loaded_files))
+        {
+            return;
+        }
+
         if (!file_exists($file)) throw new Exception\CantLoadFile($file);
 
         $array = include $file;
         if ($name !== null) $this->write($name, $array);
         else $this->write($array);
+
+        $this->_loaded_files[] = $file;
+    }
+
+    public function __invoke($key, $value = null)
+    {
+        return $this->read($key, $value);
+    }
+
+    public function save($path)
+    {
+        $array = $this->toArray();
+        return file_put_contents($path, serialize($array));
     }
 
     /*

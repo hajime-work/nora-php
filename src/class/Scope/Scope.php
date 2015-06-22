@@ -11,7 +11,8 @@ Namespace Nora\Scope;
 use Nora\Base\Hash;
 use Nora\Util;
 
-use ReflectionClass;
+use Nora\Util\Reflection\ReflectionClass;
+use Nora\Util\Reflection\Exception\CantRetriveDocComment;
 
 /**
  * スコープクラス
@@ -341,8 +342,8 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         $this->set_hash_readonly_keys(['parent']);
 
         // ルートスコープを自動呼び出しに参加させる
-        $root = $object->rootScope();
-        $this->addCallMethod($root);
+        //$root = $object->rootScope();
+        //$this->addCallMethod($root);
 
         return $this;
     }
@@ -408,23 +409,29 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
      */
     public function makeHelpers($object)
     {
-        $rc = new ReflectionClass($object);
-        foreach($rc->getMethods() as $m)
-        {
-            $dc = Util\Util::getDocComment($m);
-
-            if ($dc->hasAttr('helper'))
+            $rc = new ReflectionClass($object);
+            foreach($rc->getMethods() as $m)
             {
-                foreach($dc->getAttr('helper') as $v)
+                try
                 {
-                    if ($v === null) $v = $m->getName();
+                    if ($m->hasAttr('helper'))
+                    {
+                        foreach($m->getAttr('helper') as $v)
+                        {
+                            if ($v === null) $v = $m->getName();
 
-                    // クロージャーを作成する
-                    $spec = new Injection\Spec($m->getClosure($object), $dc->getAttr('inject'));
-                    $this->$v = $spec;
+                            // クロージャーを作成する
+                            $spec = new Injection\Spec($m->getClosure($object), $m->getAttr('inject'));
+                            $this->$v = $spec;
+                        }
+                    }
+                }catch(\Exception $e) {
+
+                    var_dump($m);
+                    die();
+
                 }
             }
-        }
         return $this;
     }
 }

@@ -8,9 +8,10 @@
  * @version 1.0.0
  */
 namespace Nora\Component;
-use Nora\Base\Component\Component as Base;
+use Nora\Base\Component\Component;
+use Nora\Base\FileSystem\FileSystem as Base;
 
-class FileSystem extends Base
+class FileSystem extends Component
 {
     protected function initComponentImpl( )
     {
@@ -23,26 +24,50 @@ class FileSystem extends Base
         ]);
     }
 
-    public function status($show = false)
+    /**
+     * 実体を取り出す
+     */
+    private function getFileSystem($client)
     {
-        $status =  [
-            'id' => spl_object_hash($this),
-            'alias' => $this->_alias
-        ];
-
-        if ($show === false) return $status;
-
-        var_export($status);
+        if (!isset($client->fileSystem))
+        {
+            $client->scope()->setWriteOnceProp('fileSystem', new Base());
+        }
+        return $client->scope()->fileSystem;
     }
 
     /**
      * エイリアスを設定する
      *
      * @helper
+     * @inject scope
      */
-    private function alias($name, $path)
+    private function alias($scope, $name, $path)
     {
-        $this->_alias[$name] = $path;
-        return $this;
+        $this->getFileSystem($scope->owner)->alias($name, $path);
+        return $this->getFileSystem($scope->owner);
+    }
+
+    /**
+     * ファイルパスを取得する
+     *
+     * @helper
+     * @inject scope
+     */
+    private function getFilePath($scope)
+    {
+        return $this->getFileSystem($scope->owner)->getPath(
+            array_slice(func_get_args(), 1)
+        );
+    }
+
+    public function __invoke($client, $params)
+    {
+        if (empty($params))
+        {
+            return $this;
+        }
+
+        return call_user_func_array([$this->getFileSystem($client), 'getPath'], $params);
     }
 }

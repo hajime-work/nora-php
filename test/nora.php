@@ -1,44 +1,23 @@
 <?php
 require_once realpath(dirname(__dir__)).'/src/autoload.php';
 
-$nora = new Nora\Base\NoraEngine();
+Nora::fileSystem()->alias('@root', '/root');
+//$nora->fileSystem()->status(true);
 
-$nora->help();
-
-$nora->fileSystem()->alias('@root', '/root');
-$nora->fileSystem()->status(true);
-
-
-$c = $nora->Configure();
+$c = Nora::Configure();
 $c->write('a', 'test');
 $c->setValue([
     'b.f.g.h.i' => 'a'
 ]);
-
 $c->write('b.c', 'testc');
 $c->write('b.d', 'testd');
 $c->write('b.e', 'testd');
-
-var_Dump(
-    $c->read('b')
-);
-
+$c->read('b');
 $c->del('b.d');
-
-var_Dump(
-    $c->read('b')
-);
-
-
-var_Dump(
-    $c->read('b.e')
-);
+$c->read('b');
+$c->read('b.e');
 $c->append('b.e', 'hoge');
-
-var_Dump(
-    $c->read('b.e')
-);
-
+$c->read('b.e');
 $c->load([
     realpath(__dir__).'/config',
 ],
@@ -46,7 +25,12 @@ $c->load([
     'default', 'devel'
 ]);
 
-$c->dump();
+
+var_Dump($c('b'));
+var_dump(Nora::fileSystem());
+
+//Nora::help($c);
+
 
 //var_dump($nora->fileSystem());
 

@@ -9,9 +9,22 @@
  */
 
 use Nora\Base\Hash;
+use Nora\Util\Util;
+use Nora\Base\NoraEngine;
 
 class Nora
 {
+    private static $_engine = null;
+
+    static public function __callStatic($name, $params)
+    {
+        if (self::$_engine === null)
+            self::$_engine = new NoraEngine();
+
+        return call_user_func_array([self::$_engine,$name], $params);
+    }
+
+
     /**
      * デバッグ用 var_dumpのラッパー
      *
@@ -71,4 +84,6 @@ class Nora
     {
         return Hash\Hash::newHash($defaults, $options);
     }
+
+
 }
