@@ -9,7 +9,7 @@
 Namespace Nora\Base\Hash\Exception;
 use Nora\Base\Exception;
 use Nora\Base\Hash\HashIF;
-use Nora\Nora;
+use Nora;
 
 
 class OverwriteOnNotAllowedKey extends Exception

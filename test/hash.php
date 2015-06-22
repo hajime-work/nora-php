@@ -1,6 +1,6 @@
 <?php
 namespace Nora\Base\Hash;
-use Nora\Nora;
+use Nora;
 use Nora\Base;
 
 require_once realpath(dirname(__dir__)).'/src/autoload.php';

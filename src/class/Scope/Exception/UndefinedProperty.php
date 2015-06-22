@@ -8,7 +8,7 @@
  */
 Namespace Nora\Scope\Exception;
 use Nora\Scope\ScopeIF;
-use Nora\Nora;
+use Nora;
 
 
 class UndefinedProperty extends Exception

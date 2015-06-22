@@ -8,7 +8,6 @@
  * @version 1.0.0
  */
 
-namespace Nora;
 use Nora\Base\Hash;
 
 class Nora
@@ -68,8 +67,8 @@ class Nora
      * @param array $defaults
      * @param int $options
      */
-    static public function hash($defaults = [], $options = Hash::OPT_SECURE)
+    static public function hash($defaults = [], $options = Hash\Hash::OPT_SECURE)
     {
-        return Hash::newHash($defaults, $options);
+        return Hash\Hash::newHash($defaults, $options);
     }
 }

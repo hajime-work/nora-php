@@ -18,7 +18,7 @@ class Hash implements HashIF
     const OPT_ALLOW_UNDEFINED_KEY_GET = 4;
     const OPT_DEFAULT = 0;
     const OPT_FULL = 7;
-    const OPT_SECURE = self::OPT_FULL ^ self::OPT_ALLOW_UNDEFINED_KEY_SET;
+    const OPT_SECURE = self::OPT_FULL ^ self::OPT_ALLOW_UNDEFINED_KEY_GET;
     const OPT_ALLOW_ALL = self::OPT_ALLOW_UNDEFINED_KEY_SET | self::OPT_ALLOW_UNDEFINED_KEY_GET;
 
     private $_array = [];
@@ -152,7 +152,7 @@ class Hash implements HashIF
      * @param string $key
      * @param string $value
      */
-    protected function _on_get_val($key, $value)
+    protected function &_on_get_val($key, &$value)
     {
         if (isset($this->_handlers['GetVal']))
         {
@@ -322,8 +322,9 @@ class Hash implements HashIF
 
     public function reverse( )
     {
-        $this->_array = array_reverse($this->_array);
-        return $this;
+        $hash = clone $this;
+        $hash->_array = array_reverse($this->_array);
+        return $hash;
     }
 
     # }}}

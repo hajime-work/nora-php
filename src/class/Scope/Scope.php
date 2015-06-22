@@ -9,6 +9,9 @@
 Namespace Nora\Scope;
 
 use Nora\Base\Hash;
+use Nora\Util;
+
+use ReflectionClass;
 
 /**
  * スコープクラス
@@ -73,6 +76,20 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
     public function markNoOverwriteProp($key)
     {
         $this->set_hash_no_overwrite([$key]);
+        return $this;
+    }
+
+    /**
+     * 書き込み１度だけのプロパティを設定する
+     *
+     * @param string $key
+     * @param mixed
+     * @retusn Scope
+     */
+    public function setWriteOnceProp($key, $value)
+    {
+        $this->initValues([$key => $value]);
+        $this->markNoOverwriteProp($key);
         return $this;
     }
 
@@ -147,6 +164,10 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
      */
     static function isInjection($cb)
     {
+        if ($cb instanceof Injection\Spec)
+        {
+            return true;
+        }
         if (is_array($cb)) {
             return is_callable($cb[count($cb)-1]);
         }
@@ -169,21 +190,21 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
             throw new Exception\CantSolvedCall($this, $name, $params);
         }
 
-        // 自分に登録されているヘルパを探す
-        if(isset($this[$name]) && (is_callable($this[$name])))
-        {
-            return call_user_func_array($this[$name], $params);
-        }
-
         // 自分に登録されているヘルパ(インジェクション配列)を探す
         if (isset($this[$name]) && $this->isInjection($this[$name]))
         {
             if ($client instanceof ScopeIF)
             {
-                return $client->injection($this[$name]);
+                return $client->injection($this[$name], $params);
             }else{
-                return $this->injection($this[$name]);
+                return $this->injection($this[$name], $params);
             }
+        }
+
+        // 自分に登録されているヘルパを探す
+        if(isset($this[$name]) && (is_callable($this[$name])))
+        {
+            return call_user_func_array($this[$name], $params);
         }
 
         // 機能呼び出しチェーンを実行
@@ -203,15 +224,24 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
      */
     public function injection($spec, $params = [])
     {
-        $func = array_pop($spec);
-        $args = $spec;
+        if ($spec instanceof Injection\Spec)
+        {
+            $func = $spec->getFunction();
+            $args = $spec->getSpec();
+        }else{
+            $func = array_pop($spec);
+            $args = $spec;
+        }
         $injection_params = [];
 
         foreach($args as $name)
         {
             $injection_params[] =  $this->resolve($name);
         }
-        $injection_params += $params;
+
+        foreach($params as $v) {
+            $injection_params[] = $v;
+        }
 
         return call_user_func_array($func, $injection_params);
     }
@@ -255,7 +285,44 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
     }
 
     /**
+     * コール用のメソッドからヘルプを作成
+     */
+    public function help($nest = 0)
+    {
+        echo str_repeat("\t", $nest);
+        echo get_class($this);
+        echo ' : ';
+        echo $this->getNames();
+        echo PHP_EOL;
+
+        foreach($this as $k=>$v)
+        {
+            if ( Util\Util::isCallable($v) )
+            {
+                $dc = Util\Util::getDocComment($v);
+                echo str_repeat("\t", $nest+1);
+                echo '->';
+                echo $k;
+                echo '( )';
+                echo ' : ';
+                echo $dc->comment();
+                echo PHP_EOL;
+            }
+        }
+
+        /*
+        foreach($this->_get_scope_call_methods() as $method)
+        {
+            $method->help($nest+1);
+        }
+         */
+        return $this;
+    }
+
+    /**
      * コール用のメソッドを設定
+     *
+     * @return $this
      */
     public function addCallMethod(CallMethodIF $method)
     {
@@ -265,11 +332,19 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
 
     /**
      * 親スコープを足す
+     *
+     * @return Scope
      */
     public function setParent($object)
     {
         $this->setReadonlyProp('parent', $object);
         $this->set_hash_readonly_keys(['parent']);
+
+        // ルートスコープを自動呼び出しに参加させる
+        $root = $object->rootScope();
+        $this->addCallMethod($root);
+
+        return $this;
     }
 
     /**
@@ -285,11 +360,23 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
     }
 
 
+    /**
+     * Scopeに名前を付ける
+     *
+     * @param string $name
+     * @return Scope
+     */
     public function setName($name)
     {
         $this->setReadonlyProp('name', $name);
+        return $this;
     }
 
+    /**
+     * スコープの名前を取得する(親の名前)
+     *
+     * @return string
+     */
     public function getNames( )
     {
         if (isset($this->parent))
@@ -300,11 +387,45 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         }
     }
 
+    /**
+     * 新しいスクープを作成する
+     *
+     * @param string $name
+     * @return Scope
+     */
     public function newScope($name = 'child')
     {
         $scope = self::createScope($name);
         $scope->setParent($this);
         return $scope;
+    }
+
+    /**
+     * オブジェクトからヘルパー群を追加する
+     *
+     * @param object $object
+     * @return Scope
+     */
+    public function makeHelpers($object)
+    {
+        $rc = new ReflectionClass($object);
+        foreach($rc->getMethods() as $m)
+        {
+            $dc = Util\Util::getDocComment($m);
+
+            if ($dc->hasAttr('helper'))
+            {
+                foreach($dc->getAttr('helper') as $v)
+                {
+                    if ($v === null) $v = $m->getName();
+
+                    // クロージャーを作成する
+                    $spec = new Injection\Spec($m->getClosure($object), $dc->getAttr('inject'));
+                    $this->$v = $spec;
+                }
+            }
+        }
+        return $this;
     }
 }
 
