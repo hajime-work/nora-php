@@ -15,19 +15,37 @@ use Closure;
 /**
  * グローバルスコープ
  *
- * 
- * スコープはスコープを持つ
+ * 全スコープのcallMethodとして登録される
  */
 class GlobalScope extends Scope
 {
+    /**
+     * シングルトン
+     *
+     * @var Scope
+     */
     static private $_scope = null;
 
+    // シングルトン {{{
     public function __construct( )
     {
         parent::__construct();
 
         $this->_helpers = Hash::newHash([], Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY_SET );
     }
+
+    static public function getInstance( )
+    {
+        if ( self::$_scope === null )
+        {
+            self::$_scope = new GlobalScope();
+        }
+
+        return self::$_scope;
+    }
+    // }}}
+
+    // For CallMethodIF {{{
 
     /**
      * 呼び出し可能なものリストに、Helperを追加する
@@ -64,17 +82,17 @@ class GlobalScope extends Scope
             return call_user_func_array($helper, $params);
         }
     }
+    // }}}
 
-    static public function getInstance( )
-    {
-        if ( self::$_scope === null )
-        {
-            self::$_scope = new GlobalScope();
-        }
+    // ヘルパー {{{
 
-        return self::$_scope;
-    }
-
+    /**
+     * ヘルパーを設定する
+     *
+     * @param string|array $name
+     * @param array|null $spec
+     * @return Scope
+     */
     public function setHelper($name, $spec = [])
     {
         if (is_array($name) )
@@ -90,11 +108,23 @@ class GlobalScope extends Scope
         return $this;
     }
 
+    /**
+     * ヘルパーがあるか
+     *
+     * @param string $name
+     * @return bool
+     */
     public function hasHelper($name)
     {
         return isset($this->_helpers[$name]);
     }
 
+    /**
+     * ヘルパーを取得
+     *
+     * @param string $name
+     * @return callable
+     */
     public function getHelper($name)
     {
         try {
@@ -104,6 +134,11 @@ class GlobalScope extends Scope
             throw new Exception\HelperNotDefined($this, $name);
         }
     }
+
+    // }}}
+
+
+
 }
 
 /* vim: set foldmethod=marker st=4 ts=4 sw=4 et: */

@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * Nora Project
  *
@@ -18,6 +18,38 @@ use Nora\Base\Logging\LogLevel;
 trait Componentable
 {
     private $_scope;
+
+    abstract protected function initComponentImpl( );
+
+    /**
+     * 新しいインスタンスを作成する
+     *
+     * @param Scope $scope
+     * @return Component
+     */
+    static public function createComponent(Scope\ScopeIF $scope)
+    {
+        $class = get_called_class();
+        $comp = new $class();
+        $comp->initComponent($scope);
+        return $comp;
+    }
+
+    /**
+     * コンポーネントを初期化する
+     *
+     * @param Scope scope
+     * @return void
+     */
+    public function initComponent(Scope\ScopeIF $scope = null)
+    {
+        if ($scope instanceof Scope\ScopeIF)
+        {
+            $this->setScope($scope);
+        }
+        $this->initComponentImpl();
+    }
+
 
     /**
      * ヘルプを表示する
@@ -66,13 +98,7 @@ trait Componentable
         return $this->_scope;
     }
 
-    /**
-     * ルートスコープを取得する
-     */
-    public function rootScope()
-    {
-        return $this->scope()->rootScope();
-    }
+    // スコープへ処理を移譲するメソッド {{{
 
     /**
      * スコープに解決してもらう
@@ -82,35 +108,30 @@ trait Componentable
         return $this->scope()->resolve($name);
     }
 
-
     /**
-     * 新しいインスタンスを作成する
-     *
-     * @param Scope $scope
-     * @return Component
+     * ルートスコープを取得する
      */
-    static public function createComponent(Scope\ScopeIF $scope)
+    public function rootScope()
     {
-        $class = get_called_class();
-        $comp = new $class();
-        $comp->initComponent($scope);
-        return $comp;
+        return $this->scope()->rootScope();
     }
 
     /**
-     * コンポーネントを初期化する
-     *
-     * @param Scope scope
-     * @return void
+     * グローバルスコープを取得する
      */
-    public function initComponent(Scope\ScopeIF $scope = null)
+    public function globalScope( )
     {
-        if ($scope instanceof Scope\ScopeIF)
-        {
-            $this->setScope($scope);
-        }
-        $this->initComponentImpl();
+        return $this->scope()->globalScope();
     }
+
+    public function injection($spec, $params = [], $client = null)
+    {
+        if ($client === null) $client = $this;
+
+        return $this->scope()->injection($spec, $params, $client);
+    }
+
+    // }}}
 
     // ロギング {{{
     
@@ -149,6 +170,15 @@ trait Componentable
         $this->log(LogLevel::DEBUG, $message);
     }
 
+    /**
+     * ログ処理
+     *
+     * ルートスコープのイベントにログイベントを投げ込む
+     *
+     * @param int $level
+     * @param mixed $message
+     * @return void
+     */
     private function log ($level, $message)
     {
         $this->rootScope()->fire(
@@ -166,19 +196,6 @@ trait Componentable
 
     // }}}
 
-    public function globalScope( )
-    {
-        return $this->scope()->globalScope();
-    }
-
-    public function injection($spec, $params = [], $client = null)
-    {
-        if ($client === null) $client = $this;
-
-        return $this->scope()->injection($spec, $params, $client);
-    }
-
-    abstract protected function initComponentImpl( );
 }
 
-/* vim: set ft=php foldmethod=marker */
+/* vim: set ft=php foldmethod=marker: */

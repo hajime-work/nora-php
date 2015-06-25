@@ -12,6 +12,12 @@ namespace Nora\Base\Component;
 use Nora;
 use Nora\Scope;
 
+/**
+ * コンポーネントを管理する
+ *
+ * - インスタンスの生成
+ * - 生成済みインスタンスの保持
+ */
 class ComponentLoader extends Component implements Scope\CallMethodIF
 {
     protected function initComponentImpl()
@@ -22,7 +28,15 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     }
 
 
-    public function isCallable($name, $value, $client)
+    /**
+     * 生成可能であればTrue
+     *
+     * @param stirng $name
+     * @param array $params
+     * @param mixed $client
+     * @return bool
+     */
+    public function isCallable($name, $params, $client)
     {
         if (isset($this->_cash_list[$name])) return true;
         if (isset($this->_factory[$name])) return true;
@@ -39,6 +53,14 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         return false;
     }
 
+    /**
+     * 生成/もしくは取得
+     *
+     * @param stirng $name
+     * @param array $params
+     * @param mixed $client
+     * @return Object
+     */
     public function call($name, $params, $client)
     {
         if (!isset($this->_cash_list[$name]))
@@ -59,6 +81,12 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     }
 
 
+    /**
+     * 生成
+     *
+     * @param stirng $name
+     * @return Object
+     */
     private function _create($name)
     {
         if (isset($this->_factory[$name]))
@@ -80,6 +108,12 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         throw new Exception\ComponentNotFound($name);
     }
 
+    /**
+     * 自動生成するネームスペースを追加する
+     *
+     * @param stirng|array $name
+     * @return ComponentLoader
+     */
     public function addNameSpace($string)
     {
         if (is_array($string))
@@ -92,6 +126,13 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         return $this;
     }
 
+    /**
+     * コンポーネントを設定する
+     *
+     * @param string $name
+     * @param mixed $cb
+     * @return ComponentLoader
+     */
     public function setComponent($name, $cb = null)
     {
         if (is_array($name))
