@@ -160,7 +160,5 @@ class AutoLoader
             $logs[] = $path;
         }
 
-        var_Dump($logs);
-
     }
 }

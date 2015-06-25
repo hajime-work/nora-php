@@ -33,7 +33,7 @@ abstract class Component
             $this->scope()->__set($key, $value);
             return $value;
         }
-        throw Exception\ScopeNotReady('__set');
+        throw new Exception\ScopeNotReady($this, '__set', func_get_args());
     }
 
     public function &__get($key)
@@ -42,7 +42,7 @@ abstract class Component
         {
             return $this->scope()->__get($key);
         }
-        throw Exception\ScopeNotReady('__set');
+        throw new Exception\ScopeNotReady($this, '__set', func_get_args());
     }
 
     public function __isset($key)
@@ -61,7 +61,7 @@ abstract class Component
             return $this->scope()->call($name, $params, $this);
         }
 
-        throw new Exception\ScopeNotReady('__call');
+        throw new Exception\ScopeNotReady($this,'__call', $name, func_get_args());
     }
 
     public function __invoke($client, $params = [])

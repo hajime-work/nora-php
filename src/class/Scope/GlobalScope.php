@@ -10,6 +10,7 @@ Namespace Nora\Scope;
 
 use Nora\Base\Hash\Hash;
 use Nora\Base\Hash\Exception\HashKeyNotExists;
+use Nora\Base\Component\ComponentLoader;
 use Closure;
 
 /**
@@ -19,6 +20,8 @@ use Closure;
  */
 class GlobalScope extends Scope
 {
+    private $_componentLoader;
+
     /**
      * シングルトン
      *
@@ -31,7 +34,29 @@ class GlobalScope extends Scope
     {
         parent::__construct();
 
-        $this->_helpers = Hash::newHash([], Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY_SET );
+        $default_helpers = [
+            'AutoLoader' => function ($list) {
+                \Nora\AutoLoader::singleton($list);
+            },
+            'ComponentLoader' => function ( ) {
+                return $this->componentLoader();
+            }
+
+        ];
+
+        $this->_helpers = Hash::newHash($default_helpers, Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY_SET );
+
+    }
+
+    public function componentLoader()
+    {
+        if (!$this->_componentLoader)
+        {
+            $cl = ComponentLoader::createComponent($this->newScope('ComponentLoader'));
+            $this->addCallMethod($cl);
+            $this->_componentLoader = $cl;
+        }
+        return $this->_componentLoader;
     }
 
     static public function getInstance( )
@@ -136,6 +161,13 @@ class GlobalScope extends Scope
     }
 
     // }}}
+
+
+
+
+
+
+
 
 
 

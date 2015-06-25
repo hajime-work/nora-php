@@ -38,6 +38,9 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
         // コールメソッドを格納する
         $this->_call_methods = new Hash\ObjectHash();
 
+        // タグ置き場
+        $this->_tags =Hash\Hash::newHash([], Hash\Hash::OPT_ALLOW_UNDEFINED_KEY|Hash\Hash::OPT_IGNORE_CASE);
+
         // グローバルスコープを格納する
         if ( !($this instanceof GlobalScope) )
         {
@@ -48,6 +51,45 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
 
         $this->setName('scope');
     }
+
+    // {{{
+    // タグ付きのスコープを探す 
+    //
+    public function find($name, $cnt = 0)
+    {
+        if ($this->hasTag($name))
+        {
+            if ($cnt > 0)
+            {
+                if ($this->hasParent())
+                {
+                    return $this->getParent()->find($name, $cnt - 1);
+                }else{
+                    return false;
+                }
+            }
+            return $this;
+        }
+
+        if ($this->hasParent())
+        {
+            return $this->getParent()->find($name, $cnt);
+        }
+
+        return false;
+    }
+
+    public function hasTag($tag)
+    {
+        return isset($this->_tags[$tag]);
+    }
+
+    public function setTag($tag, $flag = 1)
+    {
+        return $this->_tags[$tag] = 1;
+    }
+
+    // }}}
 
     public function globalScope( )
     {

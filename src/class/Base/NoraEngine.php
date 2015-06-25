@@ -12,13 +12,13 @@ namespace Nora\Base;
 use Nora\Scope;
 use Nora\CLI\Output;
 use Nora\Util\Reflection\ReflectionClass;
-use Nora\App\App;
+use Nora\App;
 
 /**
  * ノラのベースクラス
  *
  */
-class NoraEngine extends App
+class NoraEngine extends App\Base
 {
     public function __construct( )
     {
@@ -69,10 +69,17 @@ class NoraEngine extends App
         $this->Environment()->attach($this->Logger())->register();
         $this->scope()->attach($this->Logger());
 
+        // Environmentをグローバルにする
+        $this->globalScope()->ComponentLoader()->setComponent('Environment', function ( ) {
+            return $this->Environment();
+        });
+
         // サブアプリケーションを設定する
         foreach($this->Configure('app', []) as $name => $config)
         {
-            $this->addApp($name, $config);
+            $app = App\App::create($name, $config);
+            $app->setScope($this->scope()->newScope($name));
+            $this->add($app);
         }
 
         // ファイルシステムを設定

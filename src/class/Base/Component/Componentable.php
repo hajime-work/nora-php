@@ -89,8 +89,14 @@ trait Componentable
      *
      * @return Scope
      */
-    public function scope( )
+    public function scope($tag = null, $cnt = 0)
     {
+
+        if ($tag !== null)
+        {
+            return $this->scope()->find($tag, $cnt);
+        }
+
         if (!isset($this->_scope))
         {
             $this->_scope = new Scope\Scope();
