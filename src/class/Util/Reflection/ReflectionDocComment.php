@@ -27,7 +27,7 @@ class ReflectionDocComment
      */
     static public function getDocCommentRaw($object)
     {
-        if ($object instanceof ReflectionMethod || $object instanceof Injection\Spec)
+        if ($object instanceof ReflectionMethod || $object instanceof ReflectionClass || $object instanceof ReflectionFunction || $object instanceof Injection\Spec)
         {
             return $object->getDocComment();
         }
@@ -97,7 +97,7 @@ class ReflectionDocComment
             $line = trim($lines[$i]);
             if (in_array($line,['/**','/*','*/','**/'])) continue;
             $line = ltrim($line, '* ');
-            if ($line[0] == '@') break;
+            if (strlen($line) > 1 && $line[0] == '@') break;
             $comment[] = $line;
         }
 

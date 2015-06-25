@@ -10,6 +10,7 @@
 namespace Nora\Base\Component;
 
 use Nora\Scope;
+use Nora\Base\Logging\LogLevel;
 
 /**
  * 基礎コンポーネント用のTrait
@@ -58,8 +59,29 @@ trait Componentable
      */
     public function scope( )
     {
+        if (!isset($this->_scope))
+        {
+            $this->_scope = new Scope\Scope();
+        }
         return $this->_scope;
     }
+
+    /**
+     * ルートスコープを取得する
+     */
+    public function rootScope()
+    {
+        return $this->scope()->rootScope();
+    }
+
+    /**
+     * スコープに解決してもらう
+     */
+    public function resolve($name)
+    {
+        return $this->scope()->resolve($name);
+    }
+
 
     /**
      * 新しいインスタンスを作成する
@@ -90,5 +112,73 @@ trait Componentable
         $this->initComponentImpl();
     }
 
+    // ロギング {{{
+    
+    public function logEmerg($message)
+    {
+        $this->log(LogLevel::EMERG, $message);
+    }
+
+    public function logAlert($message)
+    {
+        $this->log(LogLevel::ALERT, $message);
+    }
+
+    public function logCrig($message)
+    {
+        $this->log(LogLevel::CRIT, $message);
+    }
+    public function logErr($message)
+    {
+        $this->log(LogLevel::ERR, $message);
+    }
+    public function logWarning($message)
+    {
+        $this->log(LogLevel::WARNING, $message);
+    }
+    public function logNotice($message)
+    {
+        $this->log(LogLevel::NOTICE, $message);
+    }
+    public function logInfo($message)
+    {
+        $this->log(LogLevel::INFO, $message);
+    }
+    public function logDebug($message)
+    {
+        $this->log(LogLevel::DEBUG, $message);
+    }
+
+    private function log ($level, $message)
+    {
+        $this->rootScope()->fire(
+            'log',
+            [
+                'level' => $level,
+                'message' => is_String($message) ? ['msg' => $message]: $message,
+                'tags' => [
+                    $this->scope()->getNames()
+                ],
+                'contect' => $this
+            ]
+        );
+    }
+
+    // }}}
+
+    public function globalScope( )
+    {
+        return $this->scope()->globalScope();
+    }
+
+    public function injection($spec, $params = [], $client = null)
+    {
+        if ($client === null) $client = $this;
+
+        return $this->scope()->injection($spec, $params, $client);
+    }
+
     abstract protected function initComponentImpl( );
 }
+
+/* vim: set ft=php foldmethod=marker */

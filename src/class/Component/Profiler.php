@@ -9,21 +9,23 @@
  */
 namespace Nora\Component;
 
-use Nora\Base\Component\Component;
 use Nora\Base\Component\Componentable;
+use Nora\Base\Profiler\Profiler as Base;
 
-use Nora\Base\FileSystem\FileSystem as Base;
-
-class FileSystem extends Base
+/**
+ * プロファイラ
+ */
+class Profiler extends Base
 {
     use Componentable;
-    
+
     protected function initComponentImpl( )
     {
     }
 
-    public function __invoke($client, $params = null)
+    public function __invoke($client, $params)
     {
         return $this;
     }
 }
+

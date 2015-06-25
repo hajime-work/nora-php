@@ -18,11 +18,15 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     {
         $this->_namespace_list = Nora::hash();
         $this->_cash_list = Nora::hash();
+        $this->_factory = Nora::hash();
     }
 
 
     public function isCallable($name, $value, $client)
     {
+        if (isset($this->_cash_list[$name])) return true;
+        if (isset($this->_factory[$name])) return true;
+
         foreach($this->_namespace_list->reverse() as $m)
         {
             $class = sprintf('%s\%s', $m, ucfirst($name));
@@ -57,6 +61,11 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
 
     private function _create($name)
     {
+        if (isset($this->_factory[$name]))
+        {
+            return $this->scope()->injection($this->_factory[$name]);
+        }
+
         foreach($this->_namespace_list->reverse() as $m)
         {
             $class = sprintf('%s\%s', $m, ucfirst($name));
@@ -73,7 +82,28 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
 
     public function addNameSpace($string)
     {
+        if (is_array($string))
+        {
+            foreach($string as $v) $this->addNameSpace($v);
+            return $this;
+        }
+
         $this->_namespace_list[$string] = $string;
+        return $this;
+    }
+
+    public function setComponent($name, $cb = null)
+    {
+        if (is_array($name))
+        {
+            foreach($name as $k=>$v)
+            {
+                $this->setComponent($k, $v);
+            }
+            return $this;
+        }
+
+        $this->_factory[$name] = $cb;
         return $this;
     }
 }

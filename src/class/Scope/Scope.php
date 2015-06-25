@@ -13,24 +13,45 @@ use Nora\Util;
 
 use Nora\Util\Reflection\ReflectionClass;
 use Nora\Util\Reflection\Exception\CantRetriveDocComment;
+use Closure;
+use Nora\Base\Event;
+use Nora\Base\Logging\LogLevel;
 
 /**
  * スコープクラス
  *
- * Noraの基本となるクラス
- * スコープはスコープを持つ
+ * スコープの役割:
+ *  - 値の保持
+ *  - 関数の登録
  */
-class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
+class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
 {
+    use Event\SubjectTrait;
+
     private $_call_methods;
 
     public function __construct()
     {
         // 何でも書き込める
         $this->set_hash_option(Hash\Hash::OPT_ALLOW_UNDEFINED_KEY_SET);
+
         // コールメソッドを格納する
         $this->_call_methods = new Hash\ObjectHash();
+
+        // グローバルスコープを格納する
+        if ( !($this instanceof GlobalScope) )
+        {
+            $this->addCallMethod(
+                $this->globalScope()
+            );
+        }
+
         $this->setName('scope');
+    }
+
+    public function globalScope( )
+    {
+        return GlobalScope::getInstance();
     }
 
     static public function createScope($name = 'new')
@@ -41,6 +62,8 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
     }
 
 
+    // プロパティ操作 {{{
+   
     /**
      * 読み込み専用プロパティにする
      *
@@ -119,6 +142,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         }
         return $this;
     }
+    // }}}
 
     /**
      * 関数のコール
@@ -181,9 +205,10 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
      * @param string $name
      * @param array $params
      * @param object $client
+     * @param bool $follow_parents
      * @return mixed
      */
-    public function call($name, $params, $client)
+    public function call($name, $params, $client, $follow_parents = false)
     {
         // 呼び出せるものか確認
         if (!$this->isCallable($name, $params, $client))
@@ -194,12 +219,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         // 自分に登録されているヘルパ(インジェクション配列)を探す
         if (isset($this[$name]) && $this->isInjection($this[$name]))
         {
-            if ($client instanceof ScopeIF)
-            {
-                return $client->injection($this[$name], $params);
-            }else{
-                return $this->injection($this[$name], $params);
-            }
+            return $this->injection($this[$name], $params);
         }
 
         // 自分に登録されているヘルパを探す
@@ -211,20 +231,26 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         // 機能呼び出しチェーンを実行
         foreach($this->_get_scope_call_methods()->reverse() as $method)
         {
-            if($method->isCallable($name, $params, $this))
+            if($method->isCallable($name, $params, $client))
             {
                 // 呼び出せるチェーンから機能を呼び出す
                 return $method->call($name, $params, $client);
             }
         }
+
         throw new \Exception('障害');
     }
 
     /**
      * インジェクション
      */
-    public function injection($spec, $params = [])
+    public function injection($spec, $params = [], $overwrite = [])
     {
+        if ($spec instanceof Closure)
+        {
+            return call_user_func_array($spec, $params);
+        }
+
         if ($spec instanceof Injection\Spec)
         {
             $func = $spec->getFunction();
@@ -237,7 +263,12 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
 
         foreach($args as $name)
         {
-            $injection_params[] =  $this->resolve($name);
+            if (array_key_exists($name, $overwrite))
+            {
+                $injection_params[] = $overwrite[$name];
+            }else{
+                $injection_params[] =  $this->resolve($name, $this);
+            }
         }
 
         foreach($params as $v) {
@@ -255,8 +286,11 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
      * scope = スコープ
      * scope:var = スコープのvar
      * scope:var() = スコープをコールした結果
+     *
+     * @param string $name
+     * @param bool $follow_parents
      */
-    public function resolve($name)
+    public function resolve($name, $client = null, $follow_parents = true)
     {
         if (strtolower($name) == 'scope')  return $this;
 
@@ -265,14 +299,25 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
             if(empty($m[2])) {
                 return $this[$m[1]];
             }
-            $result  = $this->call($m[1], [], $this);
+            $result  = $this->call($m[1], [], $this, $follow_parents);
             return $result;
         }
 
         if (isset($this[$name])) return $this[$name];
 
-        // それ以外に該当しなければ、コールチェインへ投げる
-        return $this->call($name, [], $this);
+        // コールチェインでの解決を試みる
+        if ($this->isCallable($name, [], $client))
+        {
+            return $this->call($name, [], $this, $follow_parents);
+        }
+
+        // 親を辿って解決を試みる
+        if ($follow_parents === true && $this->hasParent()) {
+            return $this->getParent()->resolve($name, $follow_parents);
+        }
+
+        // 解決できなければ例外を発生させる
+        throw new Exception\CantSolvedCall($this, $name, []);
     }
 
     /**
@@ -331,6 +376,8 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         return $this;
     }
 
+    // スコープ操作 {{{
+
     /**
      * 親スコープを足す
      *
@@ -374,6 +421,22 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
     }
 
     /**
+     * 親がいるか
+     */
+    public function hasParent( )
+    {
+        return isset($this['parent']);
+    }
+
+    /**
+     * 親を取得
+     */
+    public function getParent( )
+    {
+        return $this['parent'];
+    }
+
+    /**
      * スコープの名前を取得する(親の名前)
      *
      * @return string
@@ -400,6 +463,8 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
         $scope->setParent($this);
         return $scope;
     }
+
+    // }}}
 
     /**
      * オブジェクトからヘルパー群を追加する
@@ -433,6 +498,45 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF
                 }
             }
         return $this;
+    }
+
+    /**
+     * クラスアノテーションを解釈しつつ、与えられたクラスのインスタンスを精製する
+     *
+     * - @useNoraInjection = コンストラクタで @inject アノテーションが使える
+     * - @asNoraHelper = メソッドで @helper アノテーションを読み込むようになる
+     *
+     * @param string $name クラス名
+     * @param array $args コンストラクタの引数
+     * @return Object
+     */
+    public function newNoraInstance($name, $args = [])
+    {
+        $rc = new ReflectionClass($name);
+        if ($rc->hasAttr('useNoraInjection')) foreach($rc->getMethods() as $m)
+        {
+            if ($m->getName() === '__construct')
+            {
+                $params = [];
+                foreach($m->getAttr('inject') as $di)
+                {
+                    $params[] = $this->resolve($di);
+                }
+                array_walk($params, function ($p) use (&$args) {
+                    array_push($args, $p);
+                });
+                break;
+            }
+        }
+
+        $ins = $rc->newInstanceArgs($args);
+
+        if ($rc->hasAttr('asNoraHelper'))
+        {
+            $this->makeHelpers($ins);
+        }
+
+        return $rc->newInstanceArgs($args);
     }
 }
 

@@ -9,20 +9,24 @@
  */
 namespace Nora\Component;
 
-use Nora\Base\Component\Component;
 use Nora\Base\Component\Componentable;
+use Nora\Base\Logging\Logger as Base;
+use Nora\Base\Event;
+use Nora\Base\Logging\LogLevel;
+use Nora\Base\Logging\Log;
 
-use Nora\Base\FileSystem\FileSystem as Base;
-
-class FileSystem extends Base
+/**
+ * ロガー
+ */
+class Logger extends Base implements Event\ObserverIF
 {
     use Componentable;
-    
+
     protected function initComponentImpl( )
     {
     }
 
-    public function __invoke($client, $params = null)
+    public function __invoke($client, $params = [])
     {
         return $this;
     }

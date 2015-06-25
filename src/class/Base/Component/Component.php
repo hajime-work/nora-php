@@ -61,6 +61,11 @@ abstract class Component
             return $this->scope()->call($name, $params, $this);
         }
 
-        throw Exception\ScopeNotReady('__call');
+        throw new Exception\ScopeNotReady('__call');
+    }
+
+    public function __invoke($client, $params = [])
+    {
+        return $this;
     }
 }

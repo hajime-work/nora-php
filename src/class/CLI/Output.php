@@ -50,6 +50,7 @@ class Output
                 foreach($lines as $line)
                 {
                     $len = mb_strwidth($line);
+                    if (!isset($col_len[$k])) $col_len[$k] = 0;
                     $col_len[$k] = $len < $col_len[$k] ? $col_len[$k]: $len;
                 }
             }

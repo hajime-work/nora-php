@@ -162,24 +162,31 @@ class ItemAggregate extends Item implements ArrayAccess
             $c = substr($name, 0, $p);
             $n = substr($name, $p+1);
 
-            $value = [
-                $n => $value
-            ];
-
             if ($this->hasItem($c))
             {
-                return $this->getItem($c)->read($n, $default);
+                return $this->returnValue($this->getItem($c)->read($n, $default), $default);
             }
             return $default;
         }
 
         if ($this->hasItem($name))
         {
-            return $this->getItem($name)->read();
+            return $this->returnValue($this->getItem($name)->read(), $default);
         }
 
         return $default;
     }
+
+    private function returnValue($data, $default)
+    {
+        if (is_array($default) && !is_array($data)) {
+            if (empty($data)) return [];
+            return [$data];
+        }
+        return $data;
+    }
+
+
 
     /**
      * 設定を追記

@@ -10,8 +10,9 @@ Namespace Nora\Base\Hash;
 
 use ArrayAccess;
 use IteratorAggregate;
+use Countable;
 
-interface HashIF extends ArrayAccess,IteratorAggregate
+interface HashIF extends ArrayAccess,IteratorAggregate,Countable
 {
     public function setVal($name, $value);
     public function &getVal($name, $value = null);

@@ -10,9 +10,6 @@ Namespace Nora\Util\Reflection;
 
 use ReflectionClass as Base;
 
-/**
- * ユーティリティファサード
- */
 class ReflectionClass extends Base
 {
     use ReflectionTrait;
@@ -20,7 +17,7 @@ class ReflectionClass extends Base
     /**
      * オーバーライド
      */
-    public function getMethods( )
+    public function getMethods($filter = null)
     {
         $methods = [];
         foreach(parent::getMethods() as $m)

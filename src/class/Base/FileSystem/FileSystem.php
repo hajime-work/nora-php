@@ -11,7 +11,14 @@ namespace Nora\Base\FileSystem;
 
 class FileSystem
 {
+    private $_root = '/';
     private $_alias_list = [];
+
+    public function setRoot($dir)
+    {
+        $this->_root = $dir;
+        return $this;
+    }
 
 
     /**
@@ -56,6 +63,11 @@ class FileSystem
             );
         }
 
-        return $path;
+        if (strlen($path) > 0 && $path[0] == '/')
+        {
+            return $path;
+        }
+
+        return $this->_root.'/'.ltrim($path,'/');
     }
 }

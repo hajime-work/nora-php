@@ -16,6 +16,7 @@ class Hash implements HashIF
     const OPT_IGNORE_CASE = 1;
     const OPT_ALLOW_UNDEFINED_KEY_SET = 2;
     const OPT_ALLOW_UNDEFINED_KEY_GET = 4;
+    const OPT_ALLOW_UNDEFINED_KEY = 6;
     const OPT_DEFAULT = 0;
     const OPT_FULL = 7;
     const OPT_SECURE = self::OPT_FULL ^ self::OPT_ALLOW_UNDEFINED_KEY_GET;
@@ -26,6 +27,7 @@ class Hash implements HashIF
     private $_option = self::OPT_DEFAULT;
     private $_readonly_keys = [];
     private $_no_overwrite = [];
+    private $_original_keymap = [];
 
     static public function newHash($default = [], $option = 0)
     {
@@ -34,6 +36,15 @@ class Hash implements HashIF
         $hash->initValues($default);
         return $hash;
     }
+
+    // For Countable {{{
+    
+    public function count( )
+    {
+        return count($this->_array);
+    }
+
+    // }}}
 
     protected function set_hash_option($option)
     {
@@ -193,6 +204,8 @@ class Hash implements HashIF
      */
     protected function _setVal($key, $value)
     {
+        $this->_original_keymap[strtolower($key)] = $key;
+
         if ($this->isIgnoreCase()) $key = strtolower($key);
         $this->_array[$key] = $this->_on_set_val($key, $value);
         return $this;
@@ -250,7 +263,7 @@ class Hash implements HashIF
                 if (!in_array($k, $map)) continue;
             }
 
-            $result[$k] = $this->getVal($k);
+            $result[$this->_original_keymap[$k]] = $this->getVal($k);
         }
         return $result;
     }
@@ -363,11 +376,20 @@ class Hash implements HashIF
     {
         foreach($this->getKeys() as $k)
         {
-            yield $k => $this->getVal($k);
+            yield $this->_original_keymap[$k] => $this->getVal($k);
         }
     }
 
     # }}
+
+    public function inArray($val)
+    {
+        foreach($this as $k=>$v)
+        {
+            if ($v == $val) return true;
+        }
+        return false;
+    }
 
 
     # Option:Checker {{{

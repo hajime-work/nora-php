@@ -9,20 +9,23 @@
  */
 namespace Nora\Component;
 
-use Nora\Base\Component\Component;
 use Nora\Base\Component\Componentable;
+use Nora\Base\Environment\Environment as Base;
 
-use Nora\Base\FileSystem\FileSystem as Base;
-
-class FileSystem extends Base
+/**
+ * Environment
+ *
+ * 環境へのアクセス
+ */
+class Environment extends Base
 {
     use Componentable;
-    
+
     protected function initComponentImpl( )
     {
     }
 
-    public function __invoke($client, $params = null)
+    public function __invoke($client, $params)
     {
         return $this;
     }
