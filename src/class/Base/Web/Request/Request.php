@@ -45,4 +45,15 @@ class Request
         }
         return $this->_method;
     }
+
+    /**
+     * To String
+     */
+    public function __toString( )
+    {
+        return sprintf("%s %s",
+            $this->method(),
+            $this->url()
+        );
+    }
 }

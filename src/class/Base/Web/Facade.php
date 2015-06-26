@@ -10,6 +10,7 @@
 namespace Nora\Base\Web;
 
 use Nora\Base\Component\Componentable;
+use Nora;
 
 /**
  * Web Facade
@@ -67,6 +68,9 @@ class Facade
      */
     public function run ( )
     {
+        // Dispatchしたか
+        $dispatched = false;
+
         // リクエストを取得する
         $req = new Request\Request( );
         $res = new Response\Response();
@@ -79,15 +83,44 @@ class Facade
 
             $func = $spec[0];
 
+            $result = call_user_func($func, $req, $res, $route, $this);
+
             // ディスパッチ結果がfalseであれば次のディスパッチループへ
-            if (false !== call_user_func($func, $req, $res, $this))
+            if (false === $result)
             {
                 $this->_router->next();
                 continue;
             }
+
+            $dispatched = true;
+            break;
         }
 
-        // レスポンスを描画する
-        $res->send();
+        if ($dispatched === true)
+        {
+            // レスポンスを描画する
+            return $res->send();
+        }
+
+        // 404 not found
+        $this->notfound(Nora::Message("%sは見つかりませんでした。", $req), "Page Not Found", 404);
+    }
+
+    /**
+     * NotFound処理
+     */
+    public function notfound($message, $title = 'Not Found', $status = 404)
+    {
+        $res = new Response\Response();
+        return $res
+            ->status($status)
+            ->write(
+                sprintf(
+                    "<html>\n<body>\n<h4>%s</h4>\n<quote>%s</quote>\n</body>\n</html>",
+                    $title,
+                    $message
+                )
+            )
+            ->send();
     }
 }

@@ -569,7 +569,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
      * @param array $args コンストラクタの引数
      * @return Object
      */
-    public function newNoraInstance($name, $args = [])
+    public function newInstance($name, $args = [])
     {
         $rc = new ReflectionClass($name);
         if ($rc->hasAttr('useNoraInjection')) foreach($rc->getMethods() as $m)

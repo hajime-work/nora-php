@@ -69,6 +69,19 @@ class Util
 
         return $class;
     }
+
+    /**
+     * コンテントタイプを取得する
+     */
+    static public function getMimeType($file)
+    {
+        static $finfo = false;
+        if ($finfo === false)
+        {
+            $finfo = new finfo(FILEINFO_MIME, "/usr/share/misc/magic"); // mime タイプを mimetype 拡張形式で返します
+        }
+        return $finfo->file($filename);
+    }
     
 }
 

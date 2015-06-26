@@ -17,7 +17,7 @@ use Nora\Util\Util;
  * ルートオブジェクト
  *
  */
-class Route 
+class Route implements RouteIF
 {
     public $pattern, $params, $methods, $matched;
 

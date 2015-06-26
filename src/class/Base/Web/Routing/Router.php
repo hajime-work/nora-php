@@ -11,7 +11,9 @@ namespace Nora\Base\Web\Routing;
 
 use Nora\Base\Web\Controller;
 use Nora\Base\Web\Request;
+use Nora\Base\Web\Response;
 use Nora\Base\Hash\ObjectHash;
+use Nora\Base\Web\Facade;
 use Nora\Util\Util;
 
 /**
@@ -29,9 +31,28 @@ class Router implements RouteIF
         $this->_routes = new Routes( );
     }
 
+    /**
+     * 登録されたルートリストを取得する
+     *
+     * @return Routes
+     */
     public function routes()
     {
         return $this->_routes;
+    }
+
+
+    /**
+     * 複数のコントローラをURLに関連付ける
+     *
+     * @param array $list
+     * @param mixed $spec
+     * @return Router
+     */
+    public function addControllers($list)
+    {
+        foreach($list as $k=>$v) $this->addController($k, $v);
+        return $this;
     }
 
     /**
@@ -65,6 +86,25 @@ class Router implements RouteIF
         return $this;
     }
 
+    private function makeRouteClosure($class)
+    {
+        return function (Request\Request $req, Response\Response $res, RouteIF $matched, Facade $facade) use ($class) {
+            return $this->called($class, $matched, $req, $res, $matched, $facade);
+        };
+    }
+
+    /**
+     * ルータが呼び出された場合
+     */
+    private function called($class, $matched, $req, $res, $matched, $facade)
+    {
+        // アプリケーションのスコープを取得しておく
+        $app = $facade->scope('app');
+
+        // コントローラにその先は任せる
+        return $class::run($this, $matched, $facade, $req, $res);
+    }
+
     /**
      * ルータを追加する
      *
@@ -89,17 +129,6 @@ class Router implements RouteIF
         return $this;
     }
 
-    private function makeRouteClosure($class)
-    {
-        return function ($req, $res, $facade) use ($class) {
-            return $this->called($class, $req, $res, $facade);
-        };
-    }
-
-    private function called($class, $req, $res, $facade)
-    {
-        //var_Dump($class);
-    }
 
     /**
      * ルーティングを実行する
@@ -117,32 +146,6 @@ class Router implements RouteIF
         return false;
     }
 
-    public function next( )
-    {
-        $this->_routes->next();
-    }
-
-    /**
-     * マッチをさせる
-     */
-    public function match(Request\Request $req)
-    {
-        return $this->route($req);
-    }
-
-
-    /**
-     * 複数のコントローラをURLに関連付ける
-     *
-     * @param array $list
-     * @param mixed $spec
-     * @return Router
-     */
-    public function addControllers($list)
-    {
-        foreach($list as $k=>$v) $this->addController($k, $v);
-        return $this;
-    }
 
     /**
      * URLに関数を関連付ける
@@ -155,6 +158,20 @@ class Router implements RouteIF
     {
         $this->_routes->add( new Route(func_get_args()));
         return $this;
+    }
+
+   
+    public function next( )
+    {
+        $this->_routes->next();
+    }
+
+    /**
+     * マッチをさせる
+     */
+    public function match(Request\Request $req)
+    {
+        return $this->route($req);
     }
 
 }

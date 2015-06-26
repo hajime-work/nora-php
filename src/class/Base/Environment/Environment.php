@@ -77,6 +77,26 @@ class Environment
     }
 
     /**
+     * 環境変数を設定する
+     *
+     * @param string|array $name
+     * @return Environment
+     */
+    public function setEnv($name, $value = null)
+    {
+        if (is_array($name)) {
+            foreach ($name as $k=>$v) {
+                $this->setEnv($k, $v);
+            }
+            return $this;
+        }
+
+        $this->_env_vars->setVal($name, $value);
+
+        return $this;
+    }
+
+    /**
      * クライアントのIPを取得
      *
      * @return string
