@@ -16,6 +16,7 @@ use Nora\Util\Reflection\Exception\CantRetriveDocComment;
 use Closure;
 use Nora\Base\Event;
 use Nora\Base\Logging\LogLevel;
+use Nora\Base\Component\ComponentLoader;
 
 /**
  * スコープクラス
@@ -50,6 +51,33 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
         }
 
         $this->setName('scope');
+    }
+
+    /**
+     * 組み込みコンポーネントローダ
+     */
+    public function componentLoader( )
+    {
+        if (!isset($this->componentLoader))
+        {
+            $this->addCallMethod(
+                $this->componentLoader = 
+                ComponentLoader::createComponent(
+                    $this->newScope('ComponentLoader')
+                ));
+        }
+        return $this->componentLoader;
+    }
+
+    /**
+     * コンポーネントの登録
+     */
+    public function setComponent( )
+    {
+        call_user_func_array([
+            $this->componentLoader(), 'setComponent'
+        ], func_get_args());
+        return $this;
     }
 
     // {{{
@@ -284,7 +312,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
     }
 
     /**
-     * インジェクション
+     * インジェクションの実行
      */
     public function injection($spec, $params = [], $overwrite = [])
     {

@@ -19,7 +19,7 @@ use Nora\Util\Util;
  */
 class Route implements RouteIF
 {
-    public $pattern, $params, $methods, $matched;
+    public $pattern, $params, $methods = [], $matched = [];
 
     protected $_delimiter = '/';
     private $_pattern;

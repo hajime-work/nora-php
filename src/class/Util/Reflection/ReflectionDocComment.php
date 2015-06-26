@@ -107,6 +107,7 @@ class ReflectionDocComment
             $line = trim($lines[$i]);
             $line  = ltrim($line, '* ');
             if (empty($line) || $line === '/') continue;
+            $comment[] = $line;
 
             $key   = substr(strtok($line, ' '),1);
             $value = strtok("\n");

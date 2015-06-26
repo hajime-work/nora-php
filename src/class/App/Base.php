@@ -32,19 +32,12 @@ abstract class Base extends Component
         $this->_children = new ObjectHash();
     }
 
+
     protected function initComponentImpl( )
     {
         $this->scope()->setTag('app');
         $this->scope()->appName = $this->name;
         $this->scope()->appConfig = $this->config;
-
-        // スコープにコンポーネントローダを設定する
-        $this->scope()->addCallMethod(
-            $this->scope()->componentLoader =
-                ComponentLoader::createComponent(
-                    $this->scope()->newScope('ComponentLoader')
-                )
-            );
     }
 
     static public function create($name, $config)

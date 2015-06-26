@@ -144,6 +144,14 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
             return $this;
         }
 
+        if (is_object($cb) && !($cb instanceof \Closure))
+        {
+            $this->_factory[$name] = function ( ) use($cb) {
+                return $cb;
+            };
+            return $this;
+        }
+
         $this->_factory[$name] = $cb;
         return $this;
     }

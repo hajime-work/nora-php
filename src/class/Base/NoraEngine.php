@@ -23,6 +23,7 @@ class NoraEngine extends App\Base
     public function __construct( )
     {
         parent::__construct();
+
         // メインのスコープの名称を[Nora]にする
         $this->initComponent(Scope\Scope::createScope('Nora'));
     }
@@ -33,7 +34,7 @@ class NoraEngine extends App\Base
     protected function initComponentImpl( )
     {
         parent::initComponentImpl();
-        $this->scope()->componentLoader->addNameSpace('Nora\Component'); // デフォルトのネームスペースをロード対象にする
+        $this->scope()->componentLoader()->addNameSpace('Nora\Component'); // デフォルトのネームスペースをロード対象にする
     }
 
     /**
@@ -88,7 +89,7 @@ class NoraEngine extends App\Base
             ->alias($this->Configure('fileSystem.aliases',[]));
 
        
-        $this->componentLoader->addNameSpace(
+        $this->scope()->ComponentLoader()->addNameSpace(
             $this->Configure('component.ns', [])
         );
 

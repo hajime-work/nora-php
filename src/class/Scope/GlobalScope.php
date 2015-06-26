@@ -37,26 +37,11 @@ class GlobalScope extends Scope
         $default_helpers = [
             'AutoLoader' => function ($list) {
                 \Nora\AutoLoader::singleton($list);
-            },
-            'ComponentLoader' => function ( ) {
-                return $this->componentLoader();
             }
-
         ];
 
         $this->_helpers = Hash::newHash($default_helpers, Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY_SET );
 
-    }
-
-    public function componentLoader()
-    {
-        if (!$this->_componentLoader)
-        {
-            $cl = ComponentLoader::createComponent($this->newScope('ComponentLoader'));
-            $this->addCallMethod($cl);
-            $this->_componentLoader = $cl;
-        }
-        return $this->_componentLoader;
     }
 
     static public function getInstance( )

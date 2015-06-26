@@ -8,6 +8,8 @@
  */
 Namespace Nora\Base\Hash;
 
+use Nora\Exception\InvalidArgs;
+
 /**
  * ハッシュクラス
  */
@@ -100,6 +102,11 @@ class Hash implements HashIF
      */
     public function initValues($values)
     {
+        if ( !is_array($values) )
+        {
+            throw new InvalidArgs(__class__, __function__, func_get_args());
+        }
+
         foreach($values as $k=>$v)
         {
             $this->_setVal($k, $v);
@@ -257,6 +264,7 @@ class Hash implements HashIF
      */
     public function getVals($map)
     {
+        $result = [];
         foreach($this->getKeys() as $k)
         {
             if (is_array($map)) {
@@ -433,5 +441,5 @@ class Hash implements HashIF
     }
 
     # }}}
-
+    
 }

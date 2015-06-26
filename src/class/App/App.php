@@ -21,7 +21,7 @@ class App extends Base
 
         $this
             ->scope()
-            ->componentLoader
+            ->componentLoader()
             ->addNameSpace('Nora\App\Component'); // アプリケーション用のネームスペースをロード対象にする
     }
 

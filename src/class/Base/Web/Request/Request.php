@@ -10,6 +10,7 @@
 namespace Nora\Base\Web\Request;
 
 use Nora;
+use Nora\Base\Hash\Hash;
 
 
 /**
@@ -19,6 +20,11 @@ class Request
 {
     private $_url;
     private $_method;
+
+    private $_matched = false;
+    private $_post = false;
+    private $_get = false;
+    private $_data = false;
 
     /**
      * REQUEST URLを取得する
@@ -55,5 +61,53 @@ class Request
             $this->method(),
             $this->url()
         );
+    }
+
+    /**
+     * マッチしたパラメタを取得する
+     */
+    public function matched( )
+    {
+        if ($this->_matched === false)
+        {
+            $this->_matched = Hash::newHash([], Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY);
+        }
+        return $this->_matched;
+    }
+
+    /**
+     * ポストされたパラメタを取得する
+     */
+    public function post( )
+    {
+        if ($this->_post === false)
+        {
+            $this->_post = Hash::newHash($_POST, Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY);
+        }
+        return $this->_post;
+    }
+
+    /**
+     * GETされたパラメタを取得する
+     */
+    public function get( )
+    {
+        if ($this->_get === false)
+        {
+            $this->_get = Hash::newHash($_GET, Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY);
+        }
+        return $this->_get;
+    }
+
+    /**
+     * まとめて取得する
+     */
+    public function data( )
+    {
+        if ($this->_data === false)
+        {
+            $this->_data = new RequestDatas($this);
+        }
+        return $this->_data;
     }
 }
