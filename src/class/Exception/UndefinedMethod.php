@@ -9,9 +9,8 @@
 Namespace Nora\Exception;
 
 use Nora;
-use Nora\Base\Exception as Base;
 
-class UndefinedMethod extends  Base
+class UndefinedMethod extends  Exception
 {
     public function __construct($obj, $method)
     {

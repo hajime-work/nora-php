@@ -9,33 +9,35 @@
  */
 namespace Nora\App\Component;
 
-use Nora\Base\Component\Componentable;
-use Nora\Base\Configuration\Configure as Base;
+use Nora\Base\Web\Facade as Base;
 
 /**
  * AppのWeb用コンポーネント
  */
 class Web extends Base
 {
-    use Componentable;
-
     protected function initComponentImpl( )
     {
-        $this->scope()->injection([
-            'Environment',
-            'FileSystem',
-            'Configure',
-            function ($e, $f, $c)
-            {
-                $this->initWeb($e, $f, $c);
-            }
-        ]);
+        parent::initComponentImpl();
     }
 
+    /**
+     * WebControllerをセットアップする
+     *
+     * @param Nora\Component\Environment
+     * @param Nora\Component\FileSystem
+     * @param Nora\Component\Configure
+     */
     public function initWeb($env, $fs, $conf)
     {
-        $web = $fs->getPath('web/routing.php');
-        var_dump($web);
+        $this->scope()->WebFront = $this;
+
+        // ルータを作成する
+        $router = $this->scope()->script(
+            $fs->getPath('@web/routing.php')
+        );
+
+        $this->addRouter($router);
     }
 
     public function __invoke($client, $params)

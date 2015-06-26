@@ -509,6 +509,23 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
     // }}}
 
     /**
+     * スクリプトを実行する
+     *
+     * @param string $path
+     * @param array $overwrite
+     * @return mixed
+     */
+    public function script ($path, $overwrite = [])
+    {
+        if (!file_exists($path))
+        {
+            throw new Exception\ScriptFileNotFound($this, $path);
+        }
+
+        return $this->injection(include $path, $overwrite);
+    }
+
+    /**
      * オブジェクトからヘルパー群を追加する
      *
      * @param object $object

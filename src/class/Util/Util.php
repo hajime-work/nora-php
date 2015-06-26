@@ -8,6 +8,7 @@
  */
 Namespace Nora\Util;
 use Nora\Scope\Injection;
+use Nora\Exception;
 
 /**
  * ユーティリティファサード
@@ -35,6 +36,38 @@ class Util
     static public function isCallable($v)
     {
         return is_callable($v) || (is_array($v) && is_callable($v[count($v)-1]));
+    }
+
+    /**
+     * 完全なクラス名を取得する
+     *
+     * @param string $name
+     * @param array $ns_list
+     * @return 
+     */
+    static public function findClassName($name, $ns_list = [])
+    {
+        $class = false;
+
+        if (class_exists($name))
+        {
+            $class = $name;
+        }else{
+            foreach($ns_list as $ns)
+            {
+                if (class_exists($ns.'\\'.$name))
+                {
+                    $class = $ns.'\\'.$name;
+                }
+            }
+        }
+
+        if ($class === false)
+        {
+            throw new Exception\ClassNotFound($name, $ns_list);
+        }
+
+        return $class;
     }
     
 }
