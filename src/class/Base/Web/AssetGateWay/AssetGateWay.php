@@ -42,6 +42,11 @@ class AssetGateWay
             throw new Exception\AssetFileNotFound($file);
         }
 
+        $this->sendAsset($output, $path);
+    }
+
+    public function sendAsset(Response\Response $output, $path)
+    {
         $File = new FileSystem\File($path);
 
         $output->header('Content-Type', $File->getMimeType());

@@ -41,6 +41,12 @@ class Facade
         $this->_engines->addNameSpace(__namespace__.'\\Engine');
     }
 
+    public function addPath($path)
+    {
+        $this->scope()->FileLoader()->addDir($path);
+        return $this;
+    }
+
     /**
      * 描画エンジンを取得する
      */
@@ -73,6 +79,8 @@ class Facade
      */
     public function getTemplateFile($file)
     {
+        if (file_exists($file)) return $file;
+
         foreach($this->_types as $type)
         {
             $cand = $file.".".$type;
@@ -96,6 +104,8 @@ class Facade
         if (!$template = $this->getTemplateFile($file)) {
             throw new Exception\FileNotFound($file);
         }
+
+        $params['vm'] = $this->ViewModel();
 
         $ext = substr($template, strrpos($template,'.')+1);
 

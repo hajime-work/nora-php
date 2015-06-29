@@ -252,6 +252,18 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
             }
         }
 
+        // 名前に_がついていたら
+        if (false !== $p = strpos($name, '_'))
+        {
+            $first = substr($name, 0, $p);
+            $second = substr($name, $p+1);
+            if ($this->isCallable($first, [], $client))
+            {
+                $object = $this->call($first, [], $client);
+                return $object->scope()->isCallable($second, [], $client);
+            }
+        }
+
         return false;
     }
 
@@ -309,6 +321,18 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
             {
                 // 呼び出せるチェーンから機能を呼び出す
                 return $method->call($name, $params, $client);
+            }
+        }
+
+        // 名前に_がついていたら
+        if (false !== $p = strpos($name, '_'))
+        {
+            $first = substr($name, 0, $p);
+            $second = substr($name, $p+1);
+            if ($this->isCallable($first, [], $client))
+            {
+                $object = $this->call($first, [], $client);
+                return $object->scope()->call($second, $params, $client);
             }
         }
 

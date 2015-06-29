@@ -93,6 +93,9 @@ class NoraEngine extends App\Base
         $this->scope()->ComponentLoader()->addNameSpace(
             $this->Configure('component.ns', [])
         );
+        $this->scope()->ComponentLoader()->addClass(
+            $this->Configure('component.class', [])
+        );
 
         // オートロードを設定
         $this->scope()->AutoLoader(

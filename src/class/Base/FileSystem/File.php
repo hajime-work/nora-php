@@ -17,6 +17,8 @@ class File
         'png' => 'image/png',
         'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'js' => 'text/javascript',
     ];
 
     public function __construct($path)

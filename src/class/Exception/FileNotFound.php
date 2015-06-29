@@ -15,6 +15,6 @@ class FileNotFound extends Exception
     public function __construct($name, $list = [])
     {
         parent::__construct(
-            Nora::message("ファイルが見つかりません %s ", [$name]));
+            Nora::message("ファイルが見つかりません %s in %s", [$name, var_export($list, 1)]));
     }
 }

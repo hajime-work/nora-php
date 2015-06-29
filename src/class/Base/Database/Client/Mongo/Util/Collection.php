@@ -54,5 +54,20 @@ class Collection extends Component\Component
         }
     }
 
+    public function count ($q)
+    {
+        return $this->_col->count($q);
+    }
+
+    public function findOne ($q)
+    {
+        return $this->_col->findOne($q);
+    }
+
+    public function insert($data)
+    {
+        return $this->_col->insert($data);
+    }
+
     
 }

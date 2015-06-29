@@ -17,6 +17,23 @@ use Nora;
 /**
  * キャッシュ
  *
+ * <code>
+        $DB('fspot')->query('show tables')->each(function($raw) {
+            var_Dump($raw);
+        });
+        $DB('fspot-mongo')->getCollection('xhamster');
+        $DB('fspot-redis')->set('a','b');
+        var_Dump($DB('fspot-redis')->get('aa'));
+
+        $Cache->test->set('a', 'b');
+        echo $Cache->useCache('aaa', function (&$st) {
+
+            $st = true;
+
+            return date('Y/m/d G:i:s');
+
+        }, -1, fileatime(__file__));
+ * </code>
  */
 class Facade extends Client
 {

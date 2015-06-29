@@ -7,13 +7,15 @@
  * @licence https://www.nora-worker.net/LICENCE
  * @version 1.0.0
  */
-namespace Nora\Base\View\FileLoader;
+namespace Nora\Base\Data\Base;
 
-interface FileLoaderIF
+use Nora\Base\Component;
+use Nora\Base\Hash;
+use Nora;
+
+/**
+ * データのハンドリング
+ */
+class Data extends Hash\Hash
 {
-    public function getSource($name);
-
-    public function getCacheKey($name);
-
-    public function isFresh($name, $time);
 }

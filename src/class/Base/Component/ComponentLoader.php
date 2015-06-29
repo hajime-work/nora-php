@@ -25,6 +25,7 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         $this->_namespace_list = Nora::hash();
         $this->_cash_list = Nora::hash();
         $this->_factory = Nora::hash();
+        $this->_class_list = Nora::hash();
     }
 
 
@@ -45,6 +46,8 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     {
         if (isset($this->_cash_list[$name])) return true;
         if (isset($this->_factory[$name])) return true;
+
+        if (isset($this->_class_list[$name])) return true;
 
         foreach($this->_namespace_list->reverse() as $m)
         {
@@ -70,7 +73,6 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
     {
         $cmp =  $this->getComponent($name);
 
-
         if (!method_exists($cmp, '__component_invoke'))
         {
             return $cmp;
@@ -94,6 +96,15 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         if (isset($this->_factory[$name]))
         {
             return $this->scope()->injection($this->_factory[$name]);
+        }
+
+        if (isset($this->_class_list[$name]))
+        {
+            $class = $this->_class_list[$name];
+            return 
+                $class::createComponent(
+                    $this->scope()->newScope(ucfirst($name)));
+
         }
 
         foreach($this->_namespace_list->reverse() as $m)
@@ -127,6 +138,25 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
         $this->_namespace_list[$string] = $string;
         return $this;
     }
+
+    /**
+     * 自動生成するクラスを追加する
+     *
+     * @param stirng|array $name
+     * @return ComponentLoader
+     */
+    public function addClass($name, $class = null)
+    {
+        if (is_array($name))
+        {
+            foreach($name as $k=>$v) $this->addClass($k, $v);
+            return $this;
+        }
+
+        $this->_class_list[$name] = $class;
+        return $this;
+    }
+
 
     /**
      * コンポーネントを設定する

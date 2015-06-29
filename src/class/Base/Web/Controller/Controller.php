@@ -19,6 +19,9 @@ use Nora\Base\Web\AssetGateWay;
 use Nora\Util\Reflection\ReflectionClass;
 use Nora\Base\Scope;
 
+use Nora\App\Component\ViewModel;
+use Nora\App\Component\View;
+
 /**
  * コントローラ
  */
@@ -65,7 +68,6 @@ class Controller implements ControllerIF
      */
     protected function initController( )
     {
-
         // Routerコンポーネントを設定する
         $this->scope()->setComponent('Router', function ( ) {
             $router = new Routing\Router( );
@@ -105,6 +107,18 @@ class Controller implements ControllerIF
             return $router;
         });
 
+        $this->scope()->setComponent('ViewModel', function ( ) {
+            $vm = ViewModel::createComponent($this->scope()->newScope('ViewModel'));
+            $vm->scope()->addCallMethod($this->scope());
+            return $vm;
+        });
+
+        $this->scope()->setComponent('View', ['ViewModel', function ($vm) {
+            $view = View::createComponent($this->scope()->newScope('View'));
+            $view->setViewModel($vm);
+            return $view;
+        }]);
+
         // 専用のファイルシステムを作成
         $this->scope()->injection([
             'FileSystem',
@@ -114,10 +128,7 @@ class Controller implements ControllerIF
 
                 // FileSystemはコントローラ毎にクローンする
                 $fs = clone $fs;
-                $vm = clone $vm;
-                $vm->scope()->addCallMethod($this->scope());
 
-                $view->setViewModel($vm);
                 $this->scope()->setComponent([
                     'FileSystem' => $fs, 
                     'View'       => $view,

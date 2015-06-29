@@ -76,7 +76,7 @@ class FileLoader implements FileLoaderIF
             return file_get_contents($path);
         }
 
-        throw new FileNotFound($name, ['/']);
+        throw new FileNotFound($name, $this->_dirs);
     }
 
     public function getCacheKey($name)
@@ -86,6 +86,6 @@ class FileLoader implements FileLoaderIF
 
     public function isFresh($name, $time)
     {
-        return $time < fileatime($this->getFilePath($name));
+        return !($time < filemtime($this->getFilePath($name)));
     }
 }

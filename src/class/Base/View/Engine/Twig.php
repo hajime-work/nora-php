@@ -12,6 +12,7 @@ namespace Nora\Base\View\Engine;
 use Twig_Autoloader;
 use Twig_Environment;
 use Twig_Lexer;
+use Twig_SimpleFilter;
 
 require_once 'Twig/Autoloader.php';
 Twig_Autoloader::register();
@@ -39,6 +40,12 @@ class Twig extends Base
                     ]
                 );
 
+                $filter = new Twig_SimpleFilter('var_dump', function ($string) {
+                    return var_dump($string, 1);
+                });
+
+                $env->addFilter($filter);
+
                 $env->setLexer(
                     new Twig_Lexer($env, [
                         'tag_comment'  => ['{#', '#}'],
@@ -46,6 +53,7 @@ class Twig extends Base
                         'tag_variable' => ['{@', '@}']
                     ])
                 );
+
                 return $env;
             }
         ]);
