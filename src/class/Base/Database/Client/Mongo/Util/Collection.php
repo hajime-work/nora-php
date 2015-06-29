@@ -69,5 +69,15 @@ class Collection extends Component\Component
         return $this->_col->insert($data);
     }
 
+    public function find($q)
+    {
+        return $this->_col->find($q);
+    }
+
+    public function aggregate($q)
+    {
+        return $this->_col->aggregate($q);
+    }
+
     
 }

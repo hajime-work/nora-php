@@ -28,9 +28,21 @@ class RequestDatas extends Hash
         $this->_req = $req;
     }
 
-    public function &get($key, $default)
+    public function &get($key, $default, $filter = null)
     {
-        return $this->getVal($key, $default);
+        if ($filter === null)
+        {
+            return $this->getVal($key, $default);
+        }else{
+            $val = $this->get($key, $default);
+
+            foreach(explode('|', $filter) as $f)
+            {
+                $val = call_user_func($f, $val);
+            }
+            return $val;
+        }
+
     }
     public function has($key)
     {
@@ -72,9 +84,23 @@ class RequestDatas extends Hash
 
         foreach($this->_keys as $v)
         {
-            $keys += $this->_req->$v()->getKeys();
+            foreach($this->_req->$v()->getKeys() as $k) {
+                $keys[] = $k;
+            }
         }
 
+        $keys = array_unique($keys);
+
         return $keys;
+    }
+
+    public function toArray( )
+    {
+        $ret = [];
+        foreach($this->getKeys() as $k)
+        {
+            $ret[$k] = $this->getVal($k);
+        }
+        return $ret;
     }
 }

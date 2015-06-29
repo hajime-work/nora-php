@@ -37,4 +37,34 @@ class ViewModel extends Component implements CallMethodIF
     {
         return $this->scope()->call($name, $params, $client);
     }
+
+
+    /**
+     * @helper
+     */
+    public function urlencode($v)
+    {
+        return urlencode($v);
+    }
+
+    /**
+     * @helper
+     */
+    public function urldecode($v, $not = null)
+    {
+        return urldecode($v);
+    }
+
+    /**
+     * @helper
+     */
+    public function chop($text, $wc = 120, $mark = '...') 
+    {
+        if (mb_strlen($text) < $wc)
+        {
+            return $text;
+        }else{
+            return mb_substr($text, 0, $wc).$mark;
+        }
+    }
 }

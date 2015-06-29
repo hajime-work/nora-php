@@ -34,4 +34,32 @@ class Mongo extends DataSource
     {
         return $this->ds()->getCollection($name)->insert($datas);
     }
+
+    public function find($name, $query, $options)
+    {
+        $cur = $this->ds()->getCollection($name)->find($query);
+
+        if (isset($options['limit']))
+        {
+            $cur->limit($options['limit']);
+        }
+
+        if (isset($options['offset']))
+        {
+            $cur->skip($options['offset']);
+        }
+
+        $ret = [];
+        foreach($cur as $v)
+        {
+            $ret[] = $v;
+        }
+        return $ret;
+    }
+
+    public function aggregate($name, $query)
+    {
+        return $this->ds()->getCollection($name)->aggregate($query);
+    }
+
 }

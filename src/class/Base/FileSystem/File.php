@@ -19,6 +19,7 @@ class File
         'jpeg' => 'image/jpeg',
         'gif' => 'image/gif',
         'js' => 'text/javascript',
+        'php' => 'application/x-httpd-php'
     ];
 
     public function __construct($path)
@@ -58,6 +59,6 @@ class File
 
     public function read( )
     {
-        readfile($this->getPAth());
+        echo file_get_contents($this->getPath());
     }
 }

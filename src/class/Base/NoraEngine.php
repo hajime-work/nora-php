@@ -102,7 +102,6 @@ class NoraEngine extends App\Base
             $this->Configure('autoload')
         );
 
-
         $this->timer('initialize');
     }
 

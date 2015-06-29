@@ -95,4 +95,20 @@ class DataHandler extends Component\Component
     {
         return $this->getDataSource()->insert($this->_table_name, $data);
     }
+
+    /**
+     * データを検索する
+     */
+    public function find($query, $options =[])
+    {
+        return $this->getDataSource()->find($this->_table_name, $query, $options);
+    }
+
+    /**
+     * データを集計する
+     */
+    public function aggregate($query)
+    {
+        return $this->getDataSource()->aggregate($this->_table_name, $query);
+    }
 }

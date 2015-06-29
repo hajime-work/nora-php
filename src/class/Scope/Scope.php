@@ -37,7 +37,11 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
     public function __construct()
     {
         // 何でも書き込める
-        $this->set_hash_option(Hash\Hash::OPT_ALLOW_UNDEFINED_KEY_SET);
+        $this->set_hash_option(
+            Hash\Hash::OPT_IGNORE_CASE
+            |
+            Hash\Hash::OPT_ALLOW_UNDEFINED_KEY_SET
+        );
 
         // コールメソッドを格納する
         $this->_call_methods = new Hash\ObjectHash();
@@ -215,6 +219,11 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
             throw new Exception\LockedProperty($this, $key);
         }
         return $this;
+    }
+
+    public function __isset($key)
+    {
+        return parent::__isset($key);
     }
     // }}}
 
@@ -604,15 +613,24 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
                         {
                             if ($v === null) $v = $m->getName();
 
+                            $func = $m->getClosure($object);
+
+                            if ($m->getAttr('obsolete'))
+                            {
+                                $func = function ( ) use ($func, $m) {
+                                    \Nora::logWarning('[OBSOLUTE] '.$m->toString());
+                                    call_user_func_array($func, func_get_args());
+                                };
+                            }
+
                             // クロージャーを作成する
-                            $spec = new Injection\Spec($m->getClosure($object), $m->getAttr('inject'), [
+                            $spec = new Injection\Spec($func, $m->getAttr('inject'), [
                                 'Owner' => $object
                             ]);
                             $this->$v = $spec;
                         }
                     }
                 }catch(\Exception $e) {
-
                     var_dump($m);
                     die();
 

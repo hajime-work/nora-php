@@ -21,15 +21,31 @@ use Nora;
 class Facade extends Component\Component
 {
     private $_ds_list;
+    private $_ns_list;
 
     protected function initComponentImpl( )
     {
         $this->_ds_list = Nora::hash();
+        $this->_ns_list = Nora::hash();
     }
 
     public function getDataHandler($name)
     {
-        $comp = Base\DataHandler::createComponent($this->scope()->newScope($name));
+        $class = false;
+        foreach($this->_ns_list as $ns)
+        {
+            $cand = $ns.'\\'.ucfirst($name);
+            if (class_exists($cand))
+            {
+                $class = $cand;
+            }
+        }
+
+        if ($class === false) {
+            $class = __namespace__.'\\Base\\DataHandler';
+        }
+
+        $comp = $class::createComponent($this->scope()->newScope($name));
 
         if ($this->_ds_list->hasVal($name))
         {
@@ -59,6 +75,16 @@ class Facade extends Component\Component
 
         $spec = new SpecLine($value);
         $this->_ds_list->setVal($name, $spec);
+        return $this;
+    }
+
+    public function addNameSpace($name)
+    {
+        if (is_array($name)) {
+            foreach($name as $v) $this->addNameSpace($v);
+            return $this;
+        }
+        $this->_ns_list[$name] = $name;
         return $this;
     }
 

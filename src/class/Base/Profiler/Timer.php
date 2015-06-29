@@ -16,7 +16,7 @@ class Timer
 {
     public function __construct( )
     {
-        register_shutdown_function([$this, 'show']);
+        // register_shutdown_function([$this, 'show']);
         $this->_start = microtime(true);
         $this->_last = microtime(true);
     }
