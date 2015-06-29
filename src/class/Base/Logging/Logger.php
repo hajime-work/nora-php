@@ -49,7 +49,8 @@ class Logger implements Event\ObserverIF
             $log = Log::create(
                 $level = LogLevel::ERR,
                 $message = [
-                    'exp' => (string) $ev->exception
+                    'exp' => (string) $ev->exception,
+                    'msg' => $ev->exception->getMessage()
                 ],
                 $ev->getTags()->toArray(),
                 $ev->getContext()
@@ -108,6 +109,7 @@ class Logger implements Event\ObserverIF
                 return;
             }
         }
+
         if (!$this->_writer && count($this->_children) == 0)
         {
             echo $this->format($log)."\n";

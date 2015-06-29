@@ -58,7 +58,11 @@ class Nora
             return sprintf(
                 '%s (%s)', 'empty', gettype($val));
         }
-        return var_export($val);
+        ob_start();
+        var_dump($val, true);
+        $str = ob_get_contents();
+        ob_end_clean();
+        return $str;
     }
 
 

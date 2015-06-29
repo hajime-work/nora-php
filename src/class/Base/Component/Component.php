@@ -64,8 +64,4 @@ abstract class Component
         throw new Exception\ScopeNotReady($this,'__call', $name, func_get_args());
     }
 
-    public function __invoke($client, $params = [])
-    {
-        return $this;
-    }
 }

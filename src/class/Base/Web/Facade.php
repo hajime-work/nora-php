@@ -10,13 +10,14 @@
 namespace Nora\Base\Web;
 
 use Nora\Base\Component\Componentable;
+use Nora\Base\Event;
 use Nora;
 
 /**
  * Web Facade
  *
  */
-class Facade
+class Facade implements Event\ObserverIF
 {
     use Componentable;
 
@@ -38,6 +39,14 @@ class Facade
 
                 $this->initWeb($e, $f, $c);
             }
+        ]);
+
+        // 起動したことをログに記録
+        $this->logInfo([
+            'msg' => 'up',
+            'ip' => Nora::Environment()->getClientIP(),
+            'method' => Nora::Environment()->getEnv('REQUEST_METHOD'),
+            'url' => Nora::Environment()->getEnv('REQUEST_URI'),
         ]);
 
     }
@@ -122,5 +131,10 @@ class Facade
                 )
             )
             ->send();
+    }
+
+    public function notify(Event\EventIF $ev)
+    {
+        $this->notfound($ev['body'], $ev['title'], $ev['status']);
     }
 }

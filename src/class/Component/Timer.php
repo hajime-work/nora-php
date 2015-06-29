@@ -23,13 +23,18 @@ class Timer extends Base
     {
     }
 
-    public function __invoke($client, $params)
+    public function __component_invoke($client, $params)
     {
         if (!empty($params))
         {
-            call_user_func_array([$this, 'mark'], $params);
+            call_user_func_array([$this, '__invoke'], $params);
         }
         return $this;
+    }
+
+    public function __invoke($name)
+    {
+        $this->mark($name);
     }
 }
 

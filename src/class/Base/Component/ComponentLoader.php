@@ -38,6 +38,11 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
      */
     public function isCallable($name, $params, $client)
     {
+        return $this->hasComponent($name);
+    }
+
+    public function hasComponent($name)
+    {
         if (isset($this->_cash_list[$name])) return true;
         if (isset($this->_factory[$name])) return true;
 
@@ -63,18 +68,15 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
      */
     public function call($name, $params, $client)
     {
-        if (!isset($this->_cash_list[$name]))
-        {
-            $this->_cash_list[$name] = $this->_create($name);
-        }
+        $cmp =  $this->getComponent($name);
 
-        $cmp =  $this->_cash_list[$name];
-        if (!is_callable($cmp))
+
+        if (!method_exists($cmp, '__component_invoke'))
         {
             return $cmp;
         }
 
-        return call_user_func_array($cmp, [
+        return call_user_func_array([$cmp, '__component_invoke'], [
             $client,
             $params
         ]);
@@ -105,7 +107,7 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
             }
         }
 
-        throw new Exception\ComponentNotFound($name);
+        throw new Exception\ComponentNotFound($this, $name);
     }
 
     /**
@@ -154,5 +156,21 @@ class ComponentLoader extends Component implements Scope\CallMethodIF
 
         $this->_factory[$name] = $cb;
         return $this;
+    }
+
+    /**
+     * コンポーネントを取得する
+     *
+     */
+    public function getComponent($name)
+    {
+        if (!isset($this->_cash_list[$name]))
+        {
+            $this->_cash_list[$name] = $this->_create($name);
+        }
+
+        $cmp =  $this->_cash_list[$name];
+
+        return $cmp;
     }
 }

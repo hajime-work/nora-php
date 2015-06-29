@@ -70,6 +70,7 @@ class NoraEngine extends App\Base
         $this->Environment()->attach($this->Logger())->register();
         $this->scope()->attach($this->Logger());
 
+
         // Environmentをグローバルにする
         $this->globalScope()->ComponentLoader()->setComponent('Environment', function ( ) {
             return $this->Environment();
@@ -88,10 +89,16 @@ class NoraEngine extends App\Base
             ->setRoot($this->Configure('filesSystem.root', $dir))
             ->alias($this->Configure('fileSystem.aliases',[]));
 
-       
+        // 組み込みコンポーネント
         $this->scope()->ComponentLoader()->addNameSpace(
             $this->Configure('component.ns', [])
         );
+
+        // オートロードを設定
+        $this->scope()->AutoLoader(
+            $this->Configure('autoload')
+        );
+
 
         $this->timer('initialize');
     }

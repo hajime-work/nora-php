@@ -82,6 +82,7 @@ class Configure extends ItemAggregate
         return $this->read($key, $value);
     }
 
+
     public function save($path)
     {
         $array = $this->toArray();

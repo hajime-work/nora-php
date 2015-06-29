@@ -20,10 +20,11 @@ class Spec
 {
     private $_function;
 
-    public function __construct($function, $injection_spec =[])
+    public function __construct($function, $injection_spec =[], $overwrite = [])
     {
         $this->_function = $function;
         $this->_injection_spec = $injection_spec;
+        $this->_overwrite = $overwrite;
     }
 
     public function getDocComment( )
@@ -39,6 +40,11 @@ class Spec
     public function getSpec()
     {
         return $this->_injection_spec;
+    }
+
+    public function getOverwrite()
+    {
+        return $this->_overwrite;
     }
 
     public function execute($params)

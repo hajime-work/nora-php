@@ -64,7 +64,7 @@ class Route implements RouteIF
                 $pattern = '/';
             }else{
                 $methods = explode('|', $string);
-                $pattern = substr($p+1, $string);
+                $pattern = substr($string, $p+1);
             }
         }else{
             $methods = null;

@@ -75,34 +75,43 @@ class Router implements RouteIF
      * コントローラをURLに関連付ける
      *
      * @param string $name
-     * @param string $url
+     * @param string|array $url
      * @return Router
      */
     public function addController($name, $url)
     {
-        $class = Util::findClassName($name, $this->_nss);
+        if (is_array($url))
+        {
+            list($url, $options) = $url;
+        }else{
+            $options = [];
+        }
 
-        $this->map($url, $this->makeRouteClosure($class));
+        $class = Util::findClassName($name, $this->_nss);
+        $this->map($url, $this->makeRouteClosure($class, $options));
         return $this;
     }
 
-    private function makeRouteClosure($class)
+    private function makeRouteClosure($class, $options)
     {
-        return function (Request\Request $req, Response\Response $res, RouteIF $matched, Facade $facade) use ($class) {
-            return $this->called($class, $matched, $req, $res, $matched, $facade);
+        return function (Request\Request $req, Response\Response $res, RouteIF $matched, Facade $facade) use ($class, $options) {
+            return $this->called($class, $matched, $req, $res, $matched, $facade, $options);
         };
     }
 
     /**
      * ルータが呼び出された場合
      */
-    private function called($class, $matched, $req, $res, $matched, $facade)
+    private function called($class, $matched, $req, $res, $matched, $facade, $options)
     {
+        $facade->logDebug("Called: $class");
+
+
         // アプリケーションのスコープを取得しておく
         $app = $facade->scope('app');
 
         // コントローラにその先は任せる
-        return $class::run($this, $matched, $facade, $req, $res);
+        return $class::run($this, $matched, $facade, $req, $res, $options);
     }
 
     /**

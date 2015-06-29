@@ -11,12 +11,15 @@ namespace Nora\Base\Component;
 
 use Nora\Scope;
 use Nora\Base\Logging\LogLevel;
+use Nora\Base\Event;
 
 /**
  * 基礎コンポーネント用のTrait
  */
 trait Componentable
 {
+    use Event\SubjectTrait;
+
     private $_scope;
 
     abstract protected function initComponentImpl( );
@@ -201,6 +204,19 @@ trait Componentable
     }
 
     // }}}
+
+    public function __component_invoke($client, $params)
+    {
+        if (empty($params))
+        {
+            return $this;
+        }
+
+
+        if (!method_exists($this, '__invoke')) return $this;
+
+        return call_user_func_array([$this, '__invoke'], $params);
+    }
 
 }
 

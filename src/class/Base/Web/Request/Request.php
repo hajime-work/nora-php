@@ -25,6 +25,22 @@ class Request
     private $_post = false;
     private $_get = false;
     private $_data = false;
+    private $_prefix = false;
+
+    public function setPrefix($prefix)
+    {
+        $this->_prefix = $prefix;
+        return $this;
+    }
+
+    /**
+     * URLをセットする
+     */
+    public function setUrl($url)
+    {
+        $this->_url = $url;
+        return $this;
+    }
 
     /**
      * REQUEST URLを取得する
@@ -34,9 +50,18 @@ class Request
     public function url( )
     {
         if (!$this->_url){
-            $this->_url = Nora::Environment( )->getEnv('REQUEST_URI', '/');
+            $this->_url = parse_url(Nora::Environment( )->getEnv('REQUEST_URI', '/'), PHP_URL_PATH);
         }
-        return $this->_url;
+
+        if ($this->_prefix === false) return $this->_url;
+
+        if (false === $p = strpos($this->_url, $this->_prefix))
+        {
+            return $this->_url;
+        }
+
+        $url = strlen($this->_prefix) === strlen($this->_url) ? '/': substr($this->_url, strlen($this->_prefix));
+        return $url;
     }
 
     /**
@@ -109,5 +134,20 @@ class Request
             $this->_data = new RequestDatas($this);
         }
         return $this->_data;
+    }
+
+    /**
+     * セット
+     */
+    public function set($key, $value = null)
+    {
+        if (is_array($key))
+        {
+            foreach($key as $k => $v) $this->set($k, $v);
+            return $this;
+        }
+
+        $this->data()->setVal($key, $value);
+        return $this;
     }
 }

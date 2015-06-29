@@ -31,7 +31,7 @@ class SpecLine
         $this->_parsed = Hash::newHash(parse_url($string), Hash::OPT_ALLOW_UNDEFINED_KEY);
     }
 
-    public function scheme($default)
+    public function scheme($default = null)
     {
         return $this->_parsed->getVal('scheme', $default);
     }

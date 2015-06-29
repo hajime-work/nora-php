@@ -22,6 +22,9 @@ class FileSystem extends Base
             'Configure',
             function($c) {
                 $this->setRoot($c->read('app_root'));
+                $this->alias([
+                    '@cache' => '/tmp'
+                ]);
             }
         ]);
     }

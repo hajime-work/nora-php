@@ -21,8 +21,9 @@ class ViewModel extends Base
         parent::initComponentImpl();
     }
 
-    public function __invoke($client, $params)
+    public function __invoke($client, $params = [])
     {
         return $this;
     }
+
 }

@@ -44,7 +44,7 @@ class Configure extends Base
             );
     }
 
-    public function __invoke($client, $params)
+    public function __invoke($client, $params =[])
     {
         if (empty($params))
         {

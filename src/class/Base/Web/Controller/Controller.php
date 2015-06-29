@@ -15,6 +15,7 @@ use Nora\Base\Web\Request;
 use Nora\Base\Web\Response;
 use Nora\Base\Web\Routing;
 use Nora\Base\Web\Facade;
+use Nora\Base\Web\AssetGateWay;
 use Nora\Util\Reflection\ReflectionClass;
 use Nora\Base\Scope;
 
@@ -30,6 +31,18 @@ class Controller implements ControllerIF
      */
     protected function initComponentImpl( ) {
         $this->initController( );
+    }
+
+    /**
+     * notfoundをfacadeへ渡す
+     */
+    protected function notfound ($body, $title = 'not found', $status = 404)
+    {
+        $this->fire('notfound', [
+            'body' => $body,
+            'title' => $title,
+            'status' => $status
+        ]);
     }
 
     /**
@@ -96,10 +109,27 @@ class Controller implements ControllerIF
         $this->scope()->injection([
             'FileSystem',
             'View',
-            function ($fs, $view) {
-                $this->scope()->setComponent('FileSystem', $fs);
+            'ViewModel',
+            function ($fs, $view, $vm) {
+
+                // FileSystemはコントローラ毎にクローンする
+                $fs = clone $fs;
+                $vm = clone $vm;
+                $vm->scope()->addCallMethod($this->scope());
+
+                $view->setViewModel($vm);
+                $this->scope()->setComponent([
+                    'FileSystem' => $fs, 
+                    'View'       => $view,
+                    'ViewModel'  => $vm
+                ]);
             }
         ]);
+
+        // アセットゲートウェイを登録する
+        $this->scope()->setComponent('AssetGateWay', function ( ) {
+            return AssetGateWay\AssetGateWay::createComponent($this->scope()->newScope('AssetGateWay'));
+        });
 
         $this->initControllerImpl( );
     }
@@ -128,20 +158,38 @@ class Controller implements ControllerIF
      * @param Facade $facade
      * @param Request\Request $req
      * @param Response\Response $res
+     * @param array $options
      * @return bool
      */
-    static public function run (Routing\Router $router, Routing\RouteIF $route, Facade $facade, Request\Request $req, Response\Response $res )
+    static public function run (Routing\Router $router, Routing\RouteIF $route, Facade $facade, Request\Request $req, Response\Response $res , $options = [])
     {
+        $dispatched = false;
+
         // マッチしたパラメタをリクエストに入れる
         $newRequest = clone $req;
         $newRequest->matched()->initValues(
             $route->matched
         );
 
+        // プレフィックスがセットされていれば
+        if (isset($options['prefix']))
+        {
+            $newRequest->setPrefix($options['prefix']);
+        }
+
+
         // 適切なスコープでクラスを作成する
         $class = get_called_class();
         $ctrl  = new $class( );
+        $facade->logDebug([
+            "Runed" => $class,
+            "Url" => $newRequest->url()
+        ]);
+
         $ctrl->setScope($facade->scope('app')->newScope($class));
+        $ctrl->scope()->setComponent('Request', $newRequest);
+        $ctrl->attach($facade);
+        $ctrl->scope()->makeHelpers($ctrl);
         $ctrl->initComponent();
 
         $router = $ctrl->scope()->Router();
@@ -155,12 +203,12 @@ class Controller implements ControllerIF
 
             $func = $spec[0];
 
-            $result = call_user_func($func, $req, $res, $route, $this);
+            $result = call_user_func($func, $req, $res, $route, $facade);
 
             // ディスパッチ結果がfalseであれば次のディスパッチループへ
             if (false === $result)
             {
-                $this->_router->next();
+                $router->next();
                 continue;
             }
 

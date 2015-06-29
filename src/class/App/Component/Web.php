@@ -40,7 +40,7 @@ class Web extends Base
         $this->addRouter($router);
     }
 
-    public function __invoke($client, $params)
+    public function __invoke($client, $params = [])
     {
         return $this;
     }

@@ -9,6 +9,7 @@
 Namespace Nora\Util;
 use Nora\Scope\Injection;
 use Nora\Exception;
+use finfo;
 
 /**
  * ユーティリティファサード
@@ -73,14 +74,14 @@ class Util
     /**
      * コンテントタイプを取得する
      */
-    static public function getMimeType($file)
+    static public function getMimeType($filename)
     {
         static $finfo = false;
         if ($finfo === false)
         {
-            $finfo = new finfo(FILEINFO_MIME, "/usr/share/misc/magic"); // mime タイプを mimetype 拡張形式で返します
+            $finfo = new finfo(FILEINFO_MIME); // mime タイプを mimetype 拡張形式で返します
         }
-        return $finfo->file($filename);
+        return $finfo->buffer(file_get_contents($filename));
     }
     
 }

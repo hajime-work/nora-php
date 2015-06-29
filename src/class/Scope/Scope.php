@@ -27,7 +27,10 @@ use Nora\Base\Component\ComponentLoader;
  */
 class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
 {
-    use Event\SubjectTrait;
+    use Event\SubjectTrait {
+        Event\SubjectTrait::fire as eventFire;
+    }
+    use Event\ObserverTrait;
 
     private $_call_methods;
 
@@ -52,6 +55,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
 
         $this->setName('scope');
     }
+
 
     /**
      * 組み込みコンポーネントローダ
@@ -325,6 +329,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
         {
             $func = $spec->getFunction();
             $args = $spec->getSpec();
+            $overwrite = $spec->getOverwrite();
         }else{
             $func = array_pop($spec);
             $args = $spec;
@@ -458,6 +463,9 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
         $this->setReadonlyProp('parent', $object);
         $this->set_hash_readonly_keys(['parent']);
 
+        // 親をobserverに登録する
+        $this->attach($object);
+
         // ルートスコープを自動呼び出しに参加させる
         //$root = $object->rootScope();
         //$this->addCallMethod($root);
@@ -573,7 +581,9 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
                             if ($v === null) $v = $m->getName();
 
                             // クロージャーを作成する
-                            $spec = new Injection\Spec($m->getClosure($object), $m->getAttr('inject'));
+                            $spec = new Injection\Spec($m->getClosure($object), $m->getAttr('inject'), [
+                                'Owner' => $object
+                            ]);
                             $this->$v = $spec;
                         }
                     }

@@ -24,7 +24,17 @@ class RequestDatas extends Hash
 
     public function __construct(Request $req)
     {
+        $this->set_hash_option(Hash::OPT_ALLOW_UNDEFINED_KEY);
         $this->_req = $req;
+    }
+
+    public function &get($key, $default)
+    {
+        return $this->getVal($key, $default);
+    }
+    public function has($key)
+    {
+        return $this->hasVal($key);
     }
 
 

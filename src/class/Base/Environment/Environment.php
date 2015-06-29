@@ -108,6 +108,11 @@ class Environment
             return $ip;
         }
 
+        if ($ip = $this->getEnv('HTTP_X_FORWARDED_FOR'))
+        {
+            return $ip;
+        }
+
         return $this->getEnv('REMOTE_ADDR');
     }
 
