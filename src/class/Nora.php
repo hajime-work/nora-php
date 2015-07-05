@@ -75,6 +75,15 @@ class Nora
      */
     static public function message($key, $params = [])
     {
+        /*
+        $lang['en']['スクリプトファイル %s が存在しません'] = 'Script File [%s] is not found';
+
+        if (isset($lang[$key]))
+        {
+            $key =  $lang[$key];
+        }
+         */
+
         return vsprintf($key, $params);
     }
 

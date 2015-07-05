@@ -22,15 +22,23 @@ class Facade extends Component\Component
 {
     private $_ds_list;
     private $_ns_list;
+    private $_cache;
 
     protected function initComponentImpl( )
     {
         $this->_ds_list = Nora::hash();
         $this->_ns_list = Nora::hash();
+        $this->_cache   = Nora::hash();
     }
 
     public function getDataHandler($name)
     {
+        // インスタンス生成済であればそれを返す
+        if ($this->_cache->hasVal($name))
+        {
+            return $this->_cache->getVal($name);
+        }
+
         $class = false;
         foreach($this->_ns_list as $ns)
         {
@@ -52,6 +60,8 @@ class Facade extends Component\Component
             $spec = $this->_ds_list->getVal($name);
             $comp->setStorage($spec->scheme());
             $comp->setTable($spec->host());
+            // 作成したインスタンスを保存
+            $this->_cache->setVal($name, $comp);
             return $comp;
         }else{
             $this->logNotice('Dosenot Have '.$name.' in $_ds_list');
@@ -61,11 +71,13 @@ class Facade extends Component\Component
         return $comp;
     }
 
-    public function __invoke($name)
-    {
-        return $this->getDataHandler($name);
-    }
-
+    /**
+     * データソースを追加する
+     *
+     * @param string $name
+     * @param string $value
+     * @return Facade
+     */
     public function addDataSource($name, $value = null)
     {
         if (is_array($name)) {
@@ -78,6 +90,13 @@ class Facade extends Component\Component
         return $this;
     }
 
+
+    /**
+     * データハンドラを自動読み込みするネームスペース
+     *
+     * @param string $name
+     * @return Facade
+     */
     public function addNameSpace($name)
     {
         if (is_array($name)) {
@@ -86,6 +105,17 @@ class Facade extends Component\Component
         }
         $this->_ns_list[$name] = $name;
         return $this;
+    }
+
+    /**
+     * 呼びだされた場合データハンドラを返す
+     *
+     * @param string $name
+     * @return DataHandler
+     */
+    public function __invoke($name)
+    {
+        return $this->getDataHandler($name);
     }
 
 }

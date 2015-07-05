@@ -135,6 +135,12 @@ class NoraEngine extends App\Base
                 $m->comment()
             ];
         }
+
+        // 出力
+        if (!\Nora::Environment()->is('CommandLine'))
+        {
+            echo '<pre>';
+        }
         Output::title($rc->getName(), 'help');
         Output::p($rc->comment());
         Output::table($list);

@@ -112,7 +112,9 @@ class Facade implements Event\ObserverIF
         }
 
         // 404 not found
-        $this->notfound(Nora::Message("%sは見つかりませんでした。", $req), "Page Not Found", 404);
+        $this->notfound(
+            Nora::Message("%sは見つかりませんでした。", (string) $req
+        ), "Page Not Found", 404);
     }
 
     /**

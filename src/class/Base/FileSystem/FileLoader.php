@@ -60,6 +60,24 @@ class FileLoader implements FileLoaderIF
         return false;
     }
 
+    public function getFileList($path)
+    {
+        $dir = $this->getFilePath($path);
+
+        $files = glob(rtrim($dir, '/') . '/*');
+        $list = array();
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $list[] = $file;
+            }
+            if (is_dir($file)) {
+                $list = array_merge($list, $this->getFileList($file));
+            }
+        }
+
+        return $list;
+    }
+
 
     /**
      * ファイルが読めるか

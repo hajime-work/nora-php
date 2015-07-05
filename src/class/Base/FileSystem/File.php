@@ -14,12 +14,14 @@ use Nora\Exception\FileNotFound;
 class File
 {
     static private $_mime_map = [
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'gif' => 'image/gif',
-        'js' => 'text/javascript',
-        'php' => 'application/x-httpd-php'
+        'gif'  => 'image/gif',
+        'js'   => 'text/javascript',
+        'php'  => 'application/x-httpd-php',
+        'css'  => 'text/css',
+        'html' => 'text/html'
     ];
 
     public function __construct($path)
@@ -59,6 +61,11 @@ class File
 
     public function read( )
     {
-        echo file_get_contents($this->getPath());
+        readfile($this->getPath());
+    }
+
+    public function getContents( )
+    {
+        return file_get_contents($this->getPath());
     }
 }

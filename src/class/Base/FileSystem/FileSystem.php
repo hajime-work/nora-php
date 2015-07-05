@@ -70,4 +70,27 @@ class FileSystem
 
         return $this->_root.'/'.ltrim($path,'/');
     }
+
+    /**
+     * ファイルリストを取得する
+     */
+    public function getFileList($path) 
+    {
+        $dir = $this->getPath($path);
+
+        if (!is_dir($dir)) throw \Exception($dir.'はディレクトリじゃない');
+
+        $files = glob(rtrim($dir, '/') . '/*');
+        $list = array();
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $list[] = $file;
+            }
+            if (is_dir($file)) {
+                $list = array_merge($list, $this->getFileList($file));
+            }
+        }
+
+        return $list;
+    }
 }

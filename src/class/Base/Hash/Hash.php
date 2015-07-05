@@ -187,8 +187,14 @@ class Hash implements HashIF
      * @param string $value
      * @return Hash
      */
-    public function setVal($key, $value)
+    public function setVal($key, $value = null)
     {
+        if (is_array($key))
+        {
+            foreach($key as $k=>$v) $this->setVal($k, $v);
+            return $this;
+        }
+
         if (!$this->_check_is_allow_set($key))
         {
             throw new Exception\SetOnNotAllowedKey($this, $key);

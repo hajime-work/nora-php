@@ -7,7 +7,7 @@
  * @licence https://www.nora-worker.net/LICENCE
  * @version 1.0.0
  */
-namespace Nora\Base\Data\DataSource;
+namespace Nora\DataSource\Handler;
 
 use Nora\Base\Component;
 use Nora\Base\Hash;
@@ -15,14 +15,26 @@ use Nora\Base\Database\Client;
 use Nora;
 
 /**
- * データ:ソースラッパー:Mongo
- *
+ * データソースハンドラー
  */
-class Mongo extends DataSource
+class Mongo extends Handler
 {
-    public function count($name, $query)
+    private $_end_point;
+
+    protected function initHandler()
     {
-        return $this->ds()->getCollection($name)->count($query);
+        $this->_end_point = $this->_ds->getCollection($this->_spec->host());
+    }
+
+    /**
+     * データ件数を返す
+     *
+     * @param array $query
+     * @return int
+     */
+    public function count($query = [])
+    {
+        return $this->_end_point->count($query);
     }
 
     public function get($name, $query)
@@ -46,9 +58,16 @@ class Mongo extends DataSource
         return $this->ds()->getCollection($name)->remove($datas);
     }
 
-    public function find($name, $query, $options)
+    /**
+     * データを検索する
+     *
+     * @param string $query
+     * @param array $options
+     * @return array
+     */
+    public function find($query, $options)
     {
-        $cur = $this->ds()->getCollection($name)->find($query);
+        $cur = $this->_end_point->find($query);
 
         if (isset($options['limit']))
         {
@@ -68,6 +87,12 @@ class Mongo extends DataSource
         return $ret;
     }
 
+    /**
+     * 集計する
+     *
+     * @param string $name
+     * @param array $query
+     */
     public function aggregate($name, $query)
     {
         return $this->ds()->getCollection($name)->aggregate($query);

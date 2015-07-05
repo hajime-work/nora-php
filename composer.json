@@ -1,0 +1,23 @@
+{
+    "name": "nora/php",
+    "description": "Nora PHP Library",
+    "type": "Library",
+    "require": {
+        "twig/twig": "^1.18"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.7"
+    },
+    "license": "Nora",
+    "authors": [
+        {
+            "name": "Hajime MATSUMOTO",
+            "email": "hajime.matsumoto@avap.co.jp"
+        }
+    ],
+    "autoload": {
+        "files" : [
+            "src/autoload.php"
+        ]
+    }
+}

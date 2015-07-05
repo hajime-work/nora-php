@@ -75,7 +75,7 @@ class DataHandler extends Component\Component
     /**
      * データの数を数える
      */
-    public function count($query)
+    public function count($query = [])
     {
         return $this->getDataSource()->count($this->_table_name, $query);
     }
@@ -99,9 +99,25 @@ class DataHandler extends Component\Component
     /**
      * データを検索する
      */
-    public function find($query, $options =[])
+    public function find($query = [], $options =[])
     {
         return $this->getDataSource()->find($this->_table_name, $query, $options);
+    }
+
+    /**
+     * データを更新する
+     */
+    public function update($query, $datas)
+    {
+        return $this->getDataSource()->update($this->_table_name, $query, $datas);
+    }
+
+    /**
+     * データを削除する
+     */
+    public function remove($datas)
+    {
+        return $this->getDataSource()->remove($this->_table_name, $datas);
     }
 
     /**

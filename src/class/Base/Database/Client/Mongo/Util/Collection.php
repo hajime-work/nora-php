@@ -74,6 +74,12 @@ class Collection extends Component\Component
         return $this->_col->find($q);
     }
 
+    public function remove($q)
+    {
+        return $this->_col->remove($q);
+    }
+
+
     public function aggregate($q)
     {
         return $this->_col->aggregate($q);
