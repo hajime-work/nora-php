@@ -157,6 +157,13 @@ class Mail extends Part
         return $this->_rcptTo_list;
     }
 
+    public function clearRcptTo( )
+    {
+        $this->_rcptTo_list = [];
+        return $this;
+    }
+
+
     /**
      * Toヘッダを設定する
      */
@@ -458,5 +465,17 @@ class Mail extends Part
             return false;
         }
         return $res->getBody();
+    }
+
+    /**
+     * スキャン
+     */
+    public function scan( )
+    {
+        return array_merge([
+            'Subject' => $this->getSubject(true),
+            'From' => $this->getFrom(true),
+            'FromAddress' => $this->getFrom()
+        ], parent::scan());
     }
 }

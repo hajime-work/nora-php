@@ -21,7 +21,7 @@ class Parser
         list($headers, $body) = static::parseHeaderBody($text);
 
 
-        $part = new Mail\Part();
+        $part = new Part();
         foreach($headers as $k=>$v) $part->addHeader($k, $v);
 
         if ($part->isMultiPart($boundary))

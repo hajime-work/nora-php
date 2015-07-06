@@ -38,6 +38,15 @@ class Part
         return $this;
     }
 
+    public function removeHeader($key)
+    {
+        if (isset($this->_headers[$key]))
+        {
+            unset($this->_headers[$key]);
+        }
+        return $this;
+    }
+
     public function getHeaders( )
     {
         return $this->_headers;
@@ -380,6 +389,19 @@ class Part
         }
 
         return $text;
+    }
+
+    public function scan( )
+    {
+        $ret = [
+            'Content-Type' => $this->getHeaderRaw('content-type')
+        ];
+
+        foreach($this->_parts as $part)
+        {
+            $ret['parts'][] = $part->scan();
+        }
+        return $ret;
     }
 }
 

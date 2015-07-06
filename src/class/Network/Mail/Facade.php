@@ -52,6 +52,11 @@ class Facade implements Event\ObserverIF, Event\SubjectIF
         $this->smtp()->submit($mail);
     }
 
+    public function send($mail, $to = null)
+    {
+        $this->smtp()->submit($mail);
+    }
+
     /**
      * メールデータをパースする
      */

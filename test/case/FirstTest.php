@@ -13,8 +13,7 @@ class FirstTest extends PHPUnit_Framework_TestCase
 
     public function testA( )
     {
-        Nora::help('a');
-        echo 'イェイ';
+        var_Dump(Nora::DataSource( )->getDataSource('shop'));
     }
 }
 
