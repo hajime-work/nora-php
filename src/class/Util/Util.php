@@ -83,6 +83,14 @@ class Util
         }
         return $finfo->buffer(file_get_contents($filename));
     }
+
+    /**
+     * インスタンスローダ
+     */
+    static public function instanceLoader($callback)
+    {
+        return new InstanceLoader($callback);
+    }
     
 }
 

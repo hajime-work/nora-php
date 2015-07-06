@@ -93,7 +93,7 @@ class Nora
      * @param array $defaults
      * @param int $options
      */
-    static public function hash($defaults = [], $options = Hash\Hash::OPT_SECURE)
+    static public function hash($defaults = [], $options = Hash\Hash::OPT_SECURE|Hash\Hash::OPT_IGNORE_CASE)
     {
         return Hash\Hash::newHash($defaults, $options);
     }

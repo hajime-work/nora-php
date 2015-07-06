@@ -43,4 +43,26 @@ abstract class Handler
 
         throw new Exception\DoseNotSupport($ds);
     }
+
+    public function __construct(DataBase\Client\Base\Facade $con, $spec)
+    {
+        $this->_attrs = Nora::Hash($spec->getAttrs());
+
+        // 目当てのテーブル名
+        $this->_table = $spec->field;
+
+        $this->initHandler()
+    }
+
+    public function getPkey( )
+    {
+        return $this->_attrs->getVal('pkey', 'id');
+    }
+
+    public function get ($value)
+    {
+        return $this->findOne([
+            $this->getPkey() => $value
+        ]);
+    }
 }

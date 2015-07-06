@@ -104,6 +104,7 @@ class Hash implements HashIF
     {
         if ( !is_array($values) )
         {
+            var_dump($values);
             throw new InvalidArgs(__class__, __function__, func_get_args());
         }
 
@@ -189,11 +190,12 @@ class Hash implements HashIF
      */
     public function setVal($key, $value = null)
     {
-        if (is_array($key))
+        if (is_array($key) || $key instanceof Hash)
         {
             foreach($key as $k=>$v) $this->setVal($k, $v);
             return $this;
         }
+
 
         if (!$this->_check_is_allow_set($key))
         {
@@ -228,10 +230,24 @@ class Hash implements HashIF
      * @param string $key
      * @return bool
      */
-    public function hasVal($key)
+    public function hasVal($key, $true = true, $false = false)
     {
         if ($this->isIgnoreCase()) $key = strtolower($key);
-        return array_key_exists($key, $this->_array);
+
+        if (is_callable($true))
+        {
+            if ($this->hasVal($key)) {
+                $true($this->getVal($key));
+            }
+            return $this;
+        }
+
+
+        if(array_key_exists($key, $this->_array))
+        {
+            return $true;
+        }
+        return $false;
     }
 
     /**
