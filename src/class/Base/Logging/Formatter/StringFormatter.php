@@ -23,6 +23,11 @@ class StringFormatter
     private $_format = "%user@%host [%date] *%level* %message %tags %ua";
     private $_format_pre = false;
 
+    public function __construct($format = null)
+    {
+        if ($format !== null) $this->_format = $format;
+    }
+
     public function format(Log $log)
     {
         if (!$this->_format_pre) $this->_format_pre = Nora::Environment()->info($this->_format);

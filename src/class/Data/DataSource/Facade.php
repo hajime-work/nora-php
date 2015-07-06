@@ -73,5 +73,10 @@ class Facade
         return $this->_loader->get($key);
     }
 
+    public function __invoke($key)
+    {
+        return $this->getDataSource($key);
+    }
+
 
 }

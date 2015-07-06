@@ -10,13 +10,13 @@
 namespace Nora\Component;
 
 use Nora\Base\Component\Componentable;
-use Nora\Data\DataSource\Facade as Base;
+use Nora\Data\Model\Facade as Base;
 
 
 /**
- * データソースコンポーネント
+ * モデルコンポーネント
  */
-class DataSource extends Base
+class Model extends Base
 {
     use Componentable;
 
@@ -24,13 +24,9 @@ class DataSource extends Base
     {
         $this->injection([
             'Configure',
-            'DataBase',
-            function($c, $DB) {
-                foreach($c('datasource', []) as $k=>$v)
-                {
-                    $this->setDBHandler($DB);
-                    $this->setDataSource($k, $v);
-                }
+            'DataSource',
+            function($c, $DS) {
+                $this->setDataSourceHandler($DS);
             }
         ]);
     }

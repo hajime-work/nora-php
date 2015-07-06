@@ -11,6 +11,7 @@ namespace Nora\Base\Component;
 
 use Nora\Scope;
 use Nora\Base\Logging\LogLevel;
+use Nora\Base\Logging\LogSubjectTrait;
 use Nora\Base\Event;
 
 /**
@@ -19,6 +20,7 @@ use Nora\Base\Event;
 trait Componentable
 {
     use Event\SubjectTrait;
+    use LogSubjectTrait;
 
     private $_scope;
 
@@ -141,43 +143,6 @@ trait Componentable
     }
 
     // }}}
-
-    // ロギング {{{
-    
-    public function logEmerg($message)
-    {
-        $this->log(LogLevel::EMERG, $message);
-    }
-
-    public function logAlert($message)
-    {
-        $this->log(LogLevel::ALERT, $message);
-    }
-
-    public function logCrig($message)
-    {
-        $this->log(LogLevel::CRIT, $message);
-    }
-    public function logErr($message)
-    {
-        $this->log(LogLevel::ERR, $message);
-    }
-    public function logWarning($message)
-    {
-        $this->log(LogLevel::WARNING, $message);
-    }
-    public function logNotice($message)
-    {
-        $this->log(LogLevel::NOTICE, $message);
-    }
-    public function logInfo($message)
-    {
-        $this->log(LogLevel::INFO, $message);
-    }
-    public function logDebug($message)
-    {
-        $this->log(LogLevel::DEBUG, $message);
-    }
 
     /**
      * ログ処理

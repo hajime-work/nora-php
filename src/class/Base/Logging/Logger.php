@@ -30,6 +30,16 @@ class Logger implements Event\ObserverIF
     }
 
     /**
+     * 新しいロガーを作る
+     */
+    public function newLogger($spec)
+    {
+        $logger = new Logger();
+        $logger->addLogger($spec);
+        return $logger;
+    }
+
+    /**
      * イベントを受け取る
      */
     public function notify(Event\EventIF $ev)
@@ -163,6 +173,11 @@ class Logger implements Event\ObserverIF
                 $class = sprintf(__namespace__.'\\Filter\\%sFilter', ucfirst($filter_spec->scheme('level')));
                 $logger->_filters[] = new $class($filter_spec);
             }
+        }
+
+        if (isset($spec['format']))
+        {
+            $logger->_formatter = new Formatter\StringFormatter($spec['format']);
         }
 
 

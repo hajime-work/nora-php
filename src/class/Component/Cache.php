@@ -10,22 +10,24 @@
 namespace Nora\Component;
 
 use Nora\Base\Component\Componentable;
-use Nora\Base\Cache\Facade as Base;
+use Nora\Data\Cache\Facade as Base;
 
 /**
  * キャッシュコンポーネント
  */
 class Cache extends Base
 {
+    use Componentable;
+
     protected function initComponentImpl( )
     {
-        parent::initComponentImpl();
-
         $this->injection([
             'Configure',
-            function($c) {
+            'DataBase',
+            function($c, $db) {
                 $conf = $c('cache', []);
-                $this->initCache($conf);
+                $this->setDBHandler($db);
+                $this->connect($conf['spec']);
             }
         ]);
     }

@@ -34,4 +34,9 @@ class Facade
 
         return new Base\Handler($ds);
     }
+
+    public function __invoke($name)
+    {
+        return $this->getHandler($name);
+    }
 }

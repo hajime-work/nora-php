@@ -26,6 +26,8 @@ class Spec extends Util\Spec
             (?:(?<field>[^?]+)){0,1}
             (?:\?(?<attrs>.+)){0,1}/x', $string, $m))
         {
+            var_dump($string);
+            die();
             throw new Exception\IlegalSpecFormat($string);
         }
 
