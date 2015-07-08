@@ -53,4 +53,9 @@ class Facade extends Client
     {
         return new Client($this, $name);
     }
+
+    public function __get($name)
+    {
+        return $this->getHandler($name);
+    }
 }
