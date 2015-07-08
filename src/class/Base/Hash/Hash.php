@@ -102,9 +102,10 @@ class Hash implements HashIF
      */
     public function initValues($values)
     {
+        if ($values === null) $values = [];
+
         if ( !is_array($values) )
         {
-            var_dump($values);
             throw new InvalidArgs(__class__, __function__, func_get_args());
         }
 

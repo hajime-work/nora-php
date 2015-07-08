@@ -91,7 +91,30 @@ class Util
     {
         return new InstanceLoader($callback);
     }
-    
+
+
+    /**
+     * ファイルリストを取得する
+     */
+    static public function getFileList($path) 
+    {
+        $dir = $path;
+
+        if (!is_dir($dir)) throw \Exception($dir.'はディレクトリじゃない');
+
+        $files = glob(rtrim($dir, '/') . '/*');
+        $list = array();
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $list[] = $file;
+            }
+            if (is_dir($file)) {
+                $list = array_merge($list, self::getFileList($file));
+            }
+        }
+
+        return $list;
+    }
 }
 
 /* vim: set foldmethod=marker st=4 ts=4 sw=4 et: */

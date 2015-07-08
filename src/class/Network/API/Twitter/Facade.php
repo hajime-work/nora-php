@@ -5,6 +5,8 @@ use Nora\Base\Event;
 use Nora\Base\Component\Component;
 use Nora\Util\Util;
 use Nora;
+use Nora\Network\API\OAuth\Consumer;
+use Nora\Network\API\OAuth\Token;
 
 /**
  * Twitter API 
@@ -57,5 +59,13 @@ class Facade extends Component
     public function oauth( )
     {
         return $this->_oauth;
+    }
+
+    /**
+     * アクセスヘルパ
+     */
+    public function connect(Consumer $consumer, Token $token)
+    {
+        return new Helper($this, $consumer, $token);
     }
 }

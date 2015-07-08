@@ -41,20 +41,19 @@ class OAuth extends Base
 
         parse_str($res, $v);
 
-        // Sessionへoauth_tokenを保存する
-        $this->_session['token'] = $v['oauth_token'];
-
         // URL
-        return sprintf("http://api.twitter.com/oauth/authorize?oauth_token=%s", $v['oauth_token']);
+        return [
+            'token' => $v['oauth_token'],
+            'url' => sprintf("http://api.twitter.com/oauth/authorize?oauth_token=%s", $v['oauth_token'])
+        ];
     }
 
-    public function accessToken(Consumer $consumer, $token, $verifier)
+    public function accessToken(Consumer $consumer, $token, $token_prev, $verifier)
     {
-        if ($this->_session['token'] !== $token)
+        if ($token_prev !== $token)
         {
-            throw new OAuthException('不正なトークンです');
+            throw new OAuthException("不正なトークンです");
         }
-
         $url = Config::OAUTH_ENDPOINT.'/oauth/access_token';
 
         $req = Request::createRequest($consumer)->get($url);

@@ -53,12 +53,33 @@ class Facade extends Hash
         {
             // セッションIDがなければ作る
             $this->_session_id = $this->genSessionID();
+
+            $this->_cookie->set(self::SESSION_KEY, $this->_session_id);
         }
+
+        register_shutdown_function([$this, 'save']);
+    }
+
+    /**
+     * セッションIDの再生成
+     */
+    public function regen( )
+    {
+        if (headers_sent())
+        {
+            $this->logWarning('すでにヘッダーが送信されています');
+            return false;
+        }
+        // 現在のセッションIDを破棄
+        $this->storage()->delete($this->_session_id);
+
+        // 生成
+        $this->_session_id = $this->genSessionID();
 
         // クッキーを発行する
         $this->_cookie->set(self::SESSION_KEY, $this->_session_id);
 
-        register_shutdown_function([$this, 'save']);
+        return $this->_session_id;
     }
 
     /**
@@ -71,6 +92,14 @@ class Facade extends Hash
             $this->_storage = $this->createStorage();
         }
         return $this->_storage;
+    }
+
+    /**
+     * 規定時間過ぎたセッションを削除する
+     */
+    public function swipe($time = 172800) // 60*60*48
+    {
+        $this->storage()->swipte($time);
     }
 
     /**
@@ -132,6 +161,9 @@ class Facade extends Hash
             $id = $this->_secure->randomString(self::SESSION_LENGTH);
 
         }while($this->isExistsSessionID($id)); // 被ってたら取直す処理
+
+        // 予約
+        $this->storage()->ensure($id);
 
         return $id;
     }

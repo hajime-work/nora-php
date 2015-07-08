@@ -38,8 +38,13 @@ class DirStorage extends Storage
         return $this->_con->delete($key);
     }
 
-    public function swipe($time)
+    public function swipe($time = 3600)
     {
-        var_dump($time);
+        return $this->_con->swipe($time);
+    }
+
+    public function ensure($key)
+    {
+        $this->_con->ensure($key);
     }
 }

@@ -1,0 +1,85 @@
+#!/bin/env php
+<?php
+if (file_exists(getcwd().'/bootstrap.php'))
+{
+    // プロジェクトのブートストラップを読み込む
+    require_once getcwd().'/bootstrap.php';
+
+    $message = 'project';
+
+
+
+
+
+
+
+}else{
+    require_once __dir__.'/../autoload.php';
+    $message = 'root';
+}
+
+function usage( )
+{
+    global $parser;
+
+    echo $parser;
+}
+
+
+$parser = Nora::CLI()->OptParser("ノラコマンド [$message]")->addOption([
+    'version' => [
+        'short_name'  => '-v',
+        'long_name'   => '--version',
+        'action'      => true,
+        'description' => 'バージョンを表示'
+    ]
+])->addArgument([
+    'command' => [
+        'description' => '実行したいコマンド init|run'
+    ]
+])->parse();
+
+
+if ($parser->options()->hasVal('version') || !$parser->args()->hasVal('command'))
+{
+    usage();
+    exit(0);
+}
+
+
+$command = $parser->args()->getVal('command');
+
+// コンフィグをロード
+
+// Argvを詰替
+$argv = $parser->getNextArgv();
+$argv[0] = 'nora run';
+Nora::Environment( )->setArgv($argv);
+
+
+if ($command === 'run')
+{
+    
+    $parser = Nora::CLI()->OptParser('ノラコマンド: run')->addOption([
+    ])->addArgument([
+        'file' => [
+            'description' => '実行したいファイル'
+        ]
+    ])->parse();
+
+    if (!$parser->args()->hasVal('file')) {
+        usage();
+        exit(1);
+    }
+
+
+    $file = $parser->args()->getVal('file');
+
+    Nora::injection(include $file);
+
+    exit(0);
+}
+
+
+
+usage();

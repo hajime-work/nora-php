@@ -4,6 +4,7 @@ namespace Nora\Data\DataBase\Client\Dir;
 use Nora\Data\DataBase\Client\Base;
 use Nora\Base\Hash;
 use Nora;
+use Nora\Util\Util;
 
 use MongoClient;
 
@@ -66,6 +67,25 @@ class Facade extends Base\Facade
     {
         $file = $this->keyToFile($key);
         unlink($file);
+    }
+
+    public function ensure($key)
+    {
+        $file = $this->keyToFile($key);
+        $this->ensureFile($file);
+    }
+
+    public function swipe($time)
+    {
+        foreach(Util::getFileList($this->con()) as $file)
+        {
+            Nora::logDebug(sprintf("%s %s %s<br>", $file,date('Y/m/d G:i:s', fileatime($file)), $old = time() - fileatime($file)));
+
+            if ($old < $time)
+            {
+                unlink($file);
+            }
+        }
     }
 
     private function serialize($value)

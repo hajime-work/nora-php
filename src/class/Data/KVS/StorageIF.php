@@ -20,4 +20,6 @@ interface StorageIF
     public function delete($key);
 
     public function swipe($time);
+
+    public function ensure($key);
 }
