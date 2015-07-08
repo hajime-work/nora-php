@@ -21,6 +21,26 @@ class Cursor implements IteratorAggregate
         $this->_options = Nora::Hash($options);
     }
 
+    public function each($cb)
+    {
+        foreach($this as $k=>$v)
+        {
+            $cb($v, $k);
+        }
+        return $this;
+    }
+
+    public function toArray()
+    {
+        $ret = [];
+
+        foreach($this as $k=>$v)
+        {
+            $ret[$k] = $v;
+        }
+        return $ret;
+    }
+
     public function getIterator()
     {
         return $this->_handler->find($this);

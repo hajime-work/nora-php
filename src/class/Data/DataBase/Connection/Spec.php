@@ -23,7 +23,7 @@ class Spec extends Util\Spec
     {
         if (!preg_match('/
             (?<scheme>.+):\/\/
-            (?<host>[^\/:?]+)
+            (?<host>.[^\/:?]+)
             (?::(?<port>[0-9]+)){0,1}
             (?:\/(?<field>[^\?]+)){0,1}
             (?:\?(?<attrs>.+)){0,1}/x', $string, $m))

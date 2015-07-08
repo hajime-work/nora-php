@@ -28,6 +28,7 @@ class Environment
         $this->addDetector('Basic');
 
         $this->_env_vars = Hash::newHash($_ENV + $_SERVER, Hash::OPT_IGNORE_CASE|Hash::OPT_ALLOW_UNDEFINED_KEY);
+        $this->_argv = isset($GLOBALS['argv']) ? $GLOBALS['argv']: [];
     }
 
     /**
@@ -62,6 +63,23 @@ class Environment
         }
 
         throw new Exception\DetectorNotFound($name);
+    }
+
+    /**
+     * コマンド引数を取得する
+     */
+    public function getArgv( )
+    {
+        return $this->_argv;
+    }
+
+    /**
+     * コマンド引数を設定する
+     */
+    public function setArgv($argv)
+    {
+        $this->_argv = $argv;
+        return $this;
     }
 
     /**

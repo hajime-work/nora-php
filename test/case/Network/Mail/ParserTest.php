@@ -19,7 +19,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $dir = TEST_DIR.'/post_mail_dir';
         $facade = new Facade();
-        $facade->setSMTP('postfix-gw:25');
+
+        $facade->setSMTP('postfix-gw.local:25');
 
         $logger = Nora::Logger()->newLogger([
             'name' => 'test',
@@ -37,7 +38,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
             // 送信者のアドレス
             printf("%000d %s from %s".PHP_EOL, $cnt++, $mail->getSubject(true), $mail->getFrom());
-
 
             // 木暮さんへの嫌がらせ
             $mail->clearRcptTo();

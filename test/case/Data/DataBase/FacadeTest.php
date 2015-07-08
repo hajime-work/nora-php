@@ -40,6 +40,13 @@ class FacadeTest extends \PHPUnit_Framework_TestCase
         $con = $facade->connect($connection);
     }
 
+    public function testDir()
+    {
+        $connection = 'dir:///tmp/hoge';
+        $facade = new Facade( );
+        $con = $facade->connect($connection);
+    }
+
 
     public function testMain()
     {

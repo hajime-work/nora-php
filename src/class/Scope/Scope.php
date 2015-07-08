@@ -34,7 +34,7 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
 
     private $_call_methods;
 
-    public function __construct()
+    public function __construct($name = null)
     {
         // 何でも書き込める
         $this->set_hash_option(
@@ -57,7 +57,8 @@ class Scope extends Hash\Hash implements ScopeIF,CallMethodIF,Event\SubjectIF
             );
         }
 
-        $this->setName('scope');
+        if ($name === null) $name = 'scope';
+        $this->setName($name);
     }
 
 
