@@ -29,6 +29,15 @@ class Facade extends Hash
         $this->set_hash_option(Hash::OPT_ALLOW_UNDEFINED_KEY);
     }
 
+    /**
+     * ストレージを作成する
+     */
+    protected function createStorage()
+    {
+        return $storage = $this->_kvs->getStorage('dir:///tmp/session');
+    }
+
+
     protected function initComponentImpl( )
     {
         $this->injection([
@@ -100,14 +109,6 @@ class Facade extends Hash
     public function swipe($time = 172800) // 60*60*48
     {
         $this->storage()->swipte($time);
-    }
-
-    /**
-     * ストレージを作成する
-     */
-    protected function createStorage()
-    {
-        return $storage = $this->_kvs->getStorage('dir:///tmp/session');
     }
 
     /**

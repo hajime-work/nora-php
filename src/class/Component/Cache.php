@@ -24,10 +24,17 @@ class Cache extends Base
         $this->injection([
             'Configure',
             'DataBase',
-            function($c, $db) {
+            'FileSystem',
+            function($c, $db, $fs) {
                 $conf = $c('cache', []);
                 $this->setDBHandler($db);
-                $this->connect($conf['spec']);
+
+                if (!empty($conf['spec']))
+                {
+                    $this->connect($conf['spec']);
+                }else{
+                    $this->connect('dir://'. $fs->getPath('@var/session'));
+                }
             }
         ]);
     }
