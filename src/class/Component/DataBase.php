@@ -14,6 +14,15 @@ use Nora\Data\DataBase\Facade as Base;
 
 /**
  * データベースコンポーネント
+ * ---------------------------
+ *
+ * 関連するモジュール
+ *
+ * - DataSource
+ * - Session
+ * - Cache
+ * - Model
+ *
  */
 class DataBase extends Base
 {
