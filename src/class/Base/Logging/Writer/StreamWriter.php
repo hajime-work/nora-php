@@ -28,6 +28,11 @@ class StreamWriter
 
     public function write($log)
     {
-        fwrite($this->_stream, $log."\n");
+        if (Nora::Environment()->is('commandLine'))
+        {
+            fwrite($this->_stream, $log."\n");
+        }else{
+            fwrite($this->_stream, $log."<br />\n");
+        }
     }
 }

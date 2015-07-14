@@ -20,6 +20,8 @@ class Facade extends Base\Facade
     const DEFAULT_PORT=6379;
     const DEFAULT_TIMEOUT=2;
 
+    private $_prefix;
+
     protected function initClient($spec)
     {
         // redis->connect('127.0.0.1', 6379, 1, NULL, 100); // 1 sec timeout, 100ms delay between reconnection attempts.
@@ -31,6 +33,7 @@ class Facade extends Base\Facade
         );
         if ($spec->has('field'))
         {
+            $this->_prefix = $spec->get('field');
             $redis->setOption(Redis::OPT_PREFIX, $spec->get('field'));
         }
         $redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
@@ -64,5 +67,16 @@ class Facade extends Base\Facade
         $this->con()->delete($key);
         return $this;
     }
+
+    public function ensure($key)
+    {
+        $this->con()->set($key, null);
+    }
+
+    public function getKeys($query = '*')
+    {
+        return $this->con()->getKeys($query);
+    }
+
 
 }

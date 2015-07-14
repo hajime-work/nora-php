@@ -51,6 +51,19 @@ class Response extends Base
         $this->callExit();
     }
 
+    /**
+     * Json
+     */
+    public function json($data)
+    {
+        $this->header('Content-Type', 'application/json; charset=utf-8');
+
+        $this->write(
+            json_encode($data)
+        );
+    }
+
+
 }
 
 

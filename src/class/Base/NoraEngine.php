@@ -89,6 +89,7 @@ class NoraEngine extends App\Base
             ->setRoot($this->Configure('filesSystem.root', $dir))
             ->alias($this->Configure('fileSystem.aliases',[]));
 
+        
         // 組み込みコンポーネント
         $this->scope()->ComponentLoader()->addNameSpace(
             $this->Configure('component.ns', [])
@@ -101,6 +102,7 @@ class NoraEngine extends App\Base
         $this->scope()->AutoLoader(
             $this->Configure('autoload')
         );
+
 
         $this->timer('initialize');
     }

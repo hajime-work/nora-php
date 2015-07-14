@@ -33,7 +33,7 @@ class Cache extends Base
                 {
                     $this->connect($conf['spec']);
                 }else{
-                    $this->connect('dir://'. $fs->getPath('@var/session'));
+                    $this->connect('dir://'. $fs->getPath('@cache'));
                 }
             }
         ]);

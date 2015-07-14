@@ -64,8 +64,8 @@ class Facade extends Component
     /**
      * アクセスヘルパ
      */
-    public function connect(Consumer $consumer, Token $token)
+    public function connect(Consumer $consumer, Token $token, $Session = [])
     {
-        return new Helper($this, $consumer, $token);
+        return new Helper($this, $consumer, $token, $Session);
     }
 }

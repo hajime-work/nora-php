@@ -19,12 +19,14 @@ class Helper
     private $_facade;
     private $_consumer;
     private $_token;
+    private $_session;
 
-    public function __construct(Facade $facade, Consumer $con, Token $token)
+    public function __construct(Facade $facade, Consumer $con, Token $token, $Session = [])
     {
         $this->_facade   = $facade;
         $this->_consumer = $con;
         $this->_token    = $token;
+        $this->_session = $Session;
     }
 
     /**
@@ -44,12 +46,23 @@ class Helper
      */
     public function verify( )
     {
+        if (isset($this->_session->twitter_verify_user))
+        {
+            $this->_user = $this->_session->twitter_verify_user;
+            return true;
+        }
+
         try
         {
+            Nora::logDebug('Request Verify '. var_export($this->_token,true));
             $data = $this->get('/account/verify_credentials.json');
             $this->_user = $data;
+            $this->_session->twitter_verify_user = $this->_user;
             return true;
         } catch (\Exception $e) {
+
+            Nora::logWarning((string) $e);
+
             return false;
         }
     }
@@ -68,6 +81,23 @@ class Helper
     public function screenName()
     {
         return $this->user()['screen_name'];
+    }
+
+    public function userID()
+    {
+        return $this->_token['user_id'];
+    }
+
+    /**
+     * アバター
+     *
+     * size = normal bigger original
+     */
+    public function profileImageURL($size = 'original')
+    {
+        $url = $this->user()['profile_image_url'];
+        $url = str_replace('_normal.', ($size != 'original' ? '.'.$size: '.') , $url);
+        return $url;
     }
 
 

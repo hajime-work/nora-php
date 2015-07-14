@@ -63,7 +63,7 @@ class Route implements RouteIF
             {
                 $pattern = '/';
             }else{
-                $methods = explode('|', $string);
+                $methods = explode('|', substr($string, 0, $p));
                 $pattern = substr($string, $p+1);
             }
         }else{
@@ -118,6 +118,14 @@ class Route implements RouteIF
      */
     public function match(Request\Request $req)
     {
+
+        if (!empty($this->methods))
+        {
+            if(!in_array($req->method(), $this->methods))
+            {
+                return false;
+            }
+        }
         list($regex,$keys) = $this->compile();
         $regex = sprintf('%1$s^%2$s$%1$si', $this->_regex_delimiter, $regex);
 

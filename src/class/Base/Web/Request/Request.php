@@ -23,6 +23,7 @@ class Request
 
     private $_matched = false;
     private $_post = false;
+    private $_put = false;
     private $_get = false;
     private $_data = false;
     private $_prefix = false;
@@ -113,6 +114,19 @@ class Request
     }
 
     /**
+     * PUTされたパラメタを取得する
+     */
+    public function put( )
+    {
+        if ($this->_put === false)
+        {
+            $put = Nora::Environment()->getPutDatas();
+            $this->_put = Hash::newHash($put, Hash::OPT_IGNORE_CASE | Hash::OPT_ALLOW_UNDEFINED_KEY);
+        }
+        return $this->_put;
+    }
+
+    /**
      * GETされたパラメタを取得する
      */
     public function get( )
@@ -149,5 +163,15 @@ class Request
 
         $this->data()->setVal($key, $value);
         return $this;
+    }
+
+    /**
+     * 安全にデータを取得する
+     *
+     * サニタイザを渡す
+     */
+    public function safeGet($sanitizer)
+    {
+        return $sanitizer->sanitize($this->data());
     }
 }

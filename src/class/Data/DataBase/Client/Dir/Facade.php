@@ -18,7 +18,12 @@ class Facade extends Base\Facade
 
     protected function initClient($spec)
     {
-        $dir = $spec->host;
+        $dir = $spec->host.'/'.$spec->field;
+
+        if (!file_exists($dir) && !mkdir($dir, 0777, true))
+        {
+            throw new DirException(Nora::message('%sは作成できません', $dir.'/'.$field));
+        }
 
         if (!is_dir($dir))
         {
@@ -30,14 +35,8 @@ class Facade extends Base\Facade
             throw new DirException(Nora::message('%sは書き込みできません', $dir));
         }
 
-        $field = $spec->field;
 
-        if (!file_exists($dir.'/'.$field) && !mkdir($dir.'/'.$field))
-        {
-            throw new DirException(Nora::message('%sは作成できません', $dir.'/'.$field));
-        }
-
-        $this->setConnection($dir.'/'.$field);
+        $this->setConnection($dir);
     }
 
     public function get($key)

@@ -80,6 +80,17 @@ if ($command === 'run')
     exit(0);
 }
 
+if ($command === 'init')
+{
+    $file = Nora::FileSystem( )->getPath('@scripts/init.php');
+
+    Nora::injection(include $file);
+    
+
+    exit(0);
+
+}
+
 
 
 usage();

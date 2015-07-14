@@ -13,13 +13,13 @@ class Oauth
     {
     }
 
-    public function createConsumer($key, $secret)
+    public function createConsumer($spec)
     {
-        return new Consumer($key, $secret);
+        return new Consumer($spec);
     }
 
-    public function createToken($key, $secret)
+    public function createToken($spec)
     {
-        return new Token($key, $secret);
+        return new Token($spec);
     }
 }

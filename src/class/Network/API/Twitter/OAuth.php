@@ -44,7 +44,7 @@ class OAuth extends Base
         // URL
         return [
             'token' => $v['oauth_token'],
-            'url' => sprintf("http://api.twitter.com/oauth/authorize?oauth_token=%s", $v['oauth_token'])
+            'url' => sprintf("https://api.twitter.com/oauth/authorize?oauth_token=%s", $v['oauth_token'])
         ];
     }
 

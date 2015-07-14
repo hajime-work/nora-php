@@ -24,5 +24,8 @@ class Facade
         ]);
     }
 
-    
+    public function message($message)
+    {
+        fwrite(STDERR, $message);
+    }
 }

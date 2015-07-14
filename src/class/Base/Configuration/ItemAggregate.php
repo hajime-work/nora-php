@@ -91,9 +91,6 @@ class ItemAggregate extends Item implements ArrayAccess
             $c = substr($name, 0, $p);
             $n = substr($name, $p+1);
 
-            $value = [
-                $n => $value
-            ];
 
             if ($this->hasItem($c))
             {

@@ -29,21 +29,11 @@ class Facade extends Client
      */
     public function connect($spec)
     {
-        if (!($spec instanceof Spec))
-        {
-            $spec = new Spec($spec);
-        }
+        $storage = $this->injection(['KVS', function ($kvs) use ($spec) {
+            return $kvs->getStorage($spec);
+        }]);
 
-        // DBとの接続を確保
-        $con = $this->_db->getConnection($spec->database);
-
-        // DBのタイプ別にハンドラを立ち上げる
-        if ($con instanceof DataBase\Client\Redis\Facade)
-        {
-            $engine = new Adapter\Redis( $con, $spec );
-        }
-
-        parent::__construct($engine, $spec->get('field', null));
+        parent::__construct($storage);
     }
 
     /**

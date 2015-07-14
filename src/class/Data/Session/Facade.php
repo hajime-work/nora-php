@@ -23,19 +23,25 @@ class Facade extends Hash
 
     private $_session_id;
     private $_storage;
+    private $_lifetime = 60 * 60 * 3;
+    //private $_lifetime = 5;
 
     public function __construct( )
     {
         $this->set_hash_option(Hash::OPT_ALLOW_UNDEFINED_KEY);
     }
 
+
     /**
-     * ストレージを作成する
+     * キャッシュを使用開始する
      */
-    protected function createStorage()
+    public function connect($spec)
     {
-        return $storage = $this->_kvs->getStorage('dir:///tmp/session');
+        $this->_storage = $this->injection(['KVS', function ($kvs) use ($spec) {
+            return $kvs->getStorage($spec);
+        }]);
     }
+
 
 
     protected function initComponentImpl( )
@@ -51,9 +57,6 @@ class Facade extends Hash
                 $this->_kvs = $kvs;
             }
         ]);
-
-        // セッションを開始する
-        $this->start();
     }
 
     public function start( )
@@ -96,10 +99,6 @@ class Facade extends Hash
      */
     protected function storage()
     {
-        if($this->_storage === null)
-        {
-            $this->_storage = $this->createStorage();
-        }
         return $this->_storage;
     }
 
@@ -121,6 +120,7 @@ class Facade extends Hash
 
         // データ
         $array = $this->toArray();
+        $array['saved_at'] = time();
 
         $this->storage( )->set($sid, $array);
     }
@@ -142,10 +142,22 @@ class Facade extends Hash
         {
             $sid = $this->_cookie->get(self::SESSION_KEY);
 
-            if (!$this->storage( )->has($sid)) return false;
+            Nora::logDebug('Session From Cookie: '.$sid);
 
-            $this->initValues($this->storage()->get($sid));
+            if (!$this->storage( )->has($sid)) {
+                Nora::logDebug('Session Not Found: '.$sid);
+                return false;
+            }
 
+            $data = $this->storage()->get($sid);
+
+            if (is_array($data) && isset($data['saved_at']) && (time() - $data['saved_at']) > $this->_lifetime)
+            {
+                Nora::logDebug(sprintf('Session Expired: saved_at:%s lifetime:%s limit:%s', $data['saved_at'], time()-$data['saved_at'], $this->_lifetime));
+                return false;
+            }
+
+            $this->initValues($data);
             $this->_session_id = $sid;
             return true;
         }
@@ -159,7 +171,7 @@ class Facade extends Hash
     {
         do {
             // 規定バイト数のセッションIDを作成
-            $id = $this->_secure->randomString(self::SESSION_LENGTH);
+            $id = $this->_secure->random()->string(self::SESSION_LENGTH);
 
         }while($this->isExistsSessionID($id)); // 被ってたら取直す処理
 

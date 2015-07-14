@@ -13,6 +13,7 @@ use Nora\Base\Component\Componentable;
 use Nora\Base\Event;
 use Nora\Base\Hash\ObjectHash;
 use Nora\Util\Spec\SpecLine;
+use Nora;
 
 /**
  * ロガー
@@ -122,7 +123,12 @@ class Logger implements Event\ObserverIF
 
         if (!$this->_writer && count($this->_children) == 0)
         {
-            echo $this->format($log)."\n";
+            if (Nora::Environment()->is('commandLine'))
+            {
+                fwrite(STDERR, $this->format($log)."\n");
+            }else{
+                echo $this->format($log)."<br/>\n";
+            }
             return;
         }
 

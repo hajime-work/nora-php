@@ -71,6 +71,14 @@ class Facade implements Event\ObserverIF
         $this->_router->addRouter($rt);
     }
 
+    /**
+     * リクエストを取得
+     */
+    public function request( )
+    {
+        return new Request\Request();
+    }
+
 
     /**
      * Webをスタートする

@@ -20,7 +20,7 @@ use ArrayAccess;
 class RequestDatas extends Hash
 {
     private $_req;
-    private $_keys = ['matched', 'post', 'get'];
+    private $_keys = ['matched', 'post', 'get', 'put'];
 
     public function __construct(Request $req)
     {

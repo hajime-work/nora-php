@@ -22,6 +22,8 @@ class Environment
 {
     use Event\SubjectTrait;
 
+    public $dummySTDIN = false;
+
     public function __construct( )
     {
         $this->_detector = new ObjectHash(); 
@@ -63,6 +65,53 @@ class Environment
         }
 
         throw new Exception\DetectorNotFound($name);
+    }
+    /**
+     * Put Data
+     */
+    public function getPutDatas($file = false)
+    {
+        $this->injection(['HTTP', function($http) use (&$mime) {
+            $mime = $http->mime();
+        }]);
+
+        $put_datas = $mime->parseFP($fp = $this->getPutDataFP($file));
+
+        $datas = [];
+        foreach($put_datas as $v)
+        {
+            $datas[$v['name']] = $v['data'];
+        }
+        fclose($fp);
+        return $datas;
+    }
+
+    public function getPutDataFP($file = false)
+    {
+        if ($file !== false)
+        {
+            $put = fopen($file, 'r');
+        }elseif($this->dummySTDIN !== false){
+            $put = fopen($this->dummySTDIN, 'r');
+        }else{
+            $put = fopen('php://input', 'r');
+        }
+
+
+        $fp = fopen('php://memory', 'r+');
+        $len = 0;
+        $max = 1024 * 1024 * 20; // 20MBで制限
+        while($data = fread($put, 1024)) {
+            $len += strlen($data);
+            if ($max < $len)
+            {
+                throw new \Exception('MAX LENGTH');
+            }
+            fwrite($fp, $data);
+        }
+        rewind($fp);
+        fclose($put);
+        return $fp;
     }
 
     /**

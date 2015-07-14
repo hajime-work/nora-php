@@ -22,5 +22,15 @@ class Secure extends Base
     protected function initComponentImpl( )
     {
         parent::initComponentImpl();
+
+        $this->injection([
+            'Configure',
+            function ($c) {
+                if ($c->has('secure.salt'))
+                {
+                    self::$salt = $c->read('secure.salt');
+                }
+            }
+        ]);
     }
 }

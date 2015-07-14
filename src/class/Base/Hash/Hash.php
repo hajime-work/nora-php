@@ -102,7 +102,7 @@ class Hash implements HashIF
      */
     public function initValues($values)
     {
-        if ($values === null) $values = [];
+        if ($values === null || $values === false) $values = [];
 
         if ( !is_array($values) )
         {
