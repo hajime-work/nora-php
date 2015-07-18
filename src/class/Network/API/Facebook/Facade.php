@@ -19,11 +19,17 @@ class Facade extends Component
         $this->_consumers = Nora::Hash();
     }
 
+    /**
+     * コンシューマヘルパを取得する
+     */
     public function consumer($name = 'default')
     {
-        return $this->_consumers[$name];
+        return new Consumer($this, $this->_consumers[$name]);
     }
 
+    /**
+     * コンシューマをセットする
+     */
     public function setConsumer($name, $spec = null)
     {
         if (is_array($name))
@@ -37,6 +43,9 @@ class Facade extends Component
         $this->_consumers[$name] = $this->_oauth->createConsumer($spec);
     }
 
+    /**
+     * トークン作成
+     */
     public function token($spec)
     {
         return $this->_oauth->createToken($spec);

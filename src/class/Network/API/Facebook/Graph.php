@@ -33,7 +33,7 @@ class Graph extends Base
     {
         $url = 'https://graph.facebook.com'.$url;
         $res = $this->_http->client()->get($url, array_merge([
-            'access_token' => $token
+            'access_token' => $token,
         ], $params));
 
         if ($res->code() !== 200)

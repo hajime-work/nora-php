@@ -1,5 +1,6 @@
 <?php
 namespace Nora\Network\Social;
+use Nora\Base\Component\Component;
 
 class Facade extends Component
 {

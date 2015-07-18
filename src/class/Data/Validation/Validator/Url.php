@@ -13,7 +13,7 @@ class Url extends Regex
     protected function setup($args)
     {
         parent::setup([
-            '/^http:\/\//'
+            '/^http[s]{0,1}:\/\//'
         ]);
 
 
@@ -31,6 +31,7 @@ class Url extends Regex
 
         if ($this->_check_exists)
         {
+            Nora::logDebug('url---'.$value);
             if(false ===  Nora::HTTP()->checkUrl($value, $st))
             {
                 $this->message()->setMessage('http status '.$st);
