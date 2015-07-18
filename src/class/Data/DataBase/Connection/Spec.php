@@ -10,6 +10,8 @@ use Nora\Util;
  */
 class Spec extends Util\Spec
 {
+    private $_string = '';
+
     /**
      * scheme://host/field?key=value
      *
@@ -21,6 +23,8 @@ class Spec extends Util\Spec
      */
     public function parse($string)
     {
+        $this->_string = $string;
+
         if (!preg_match('/
             (?<scheme>.+):\/\/
             (?<host>.[^\/:?]+)
@@ -49,5 +53,10 @@ class Spec extends Util\Spec
             parse_str($m['attrs'], $q);
             $this->setAttr($q);
         }
+    }
+
+    public function toString()
+    {
+        return $this->_string;
     }
 }

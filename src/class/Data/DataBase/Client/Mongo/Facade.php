@@ -23,10 +23,15 @@ class Facade extends Base\Facade
             $con .= '/?replicaSet='.$spec->getAttr('replicaSet');
         }
 
+        // ホスト名を取り直す
+        preg_match('/mongo:\/\/([^\/]+)\/([^?]+)?(.+)/', $spec->toString(), $m);
+        $con = sprintf('mongodb://%s/%s', $m[1], $m[3]);
+        $field = $m[2];
+
         $client = new MongoClient($con);
 
         $this->setConnection($client);
-        $this->_db = $client->{$spec->field};
+        $this->_db = $client->{$field};
     }
 
     public function status ( )
