@@ -30,6 +30,11 @@ class Handler extends DataSource\Handler\Handler
         return $model;
     }
 
+    public function adapter( )
+    {
+        return parent::adapter()->adapter();
+    }
+
 
 
     /**
