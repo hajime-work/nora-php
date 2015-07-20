@@ -84,7 +84,7 @@ class Client
             return false;
         }
 
-        if ($create_after > 0 && $val['created_at'] > $create_after)
+        if ($create_after > 0 && $val['created_at'] < $create_after)
         {
             return false;
         }
