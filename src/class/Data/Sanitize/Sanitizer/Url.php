@@ -14,6 +14,6 @@ class Url extends Sanitizer
     {
         $tag = new StripTags();
 
-        return $html->sanitize($tag->sanitize(strval($val)));
+        return $tag->sanitize(strval($val));
     }
 }

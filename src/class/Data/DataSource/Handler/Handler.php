@@ -65,7 +65,7 @@ class Handler implements Adapter\AdapterIF
 
     public function insert($datas)
     {
-        $this->adapter()->insert($datas);
+        return $this->adapter()->insert($datas);
     }
 
     public function update($query, $datas)

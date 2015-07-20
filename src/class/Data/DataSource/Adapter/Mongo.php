@@ -41,7 +41,7 @@ class Mongo extends Adapter
     public function insert($datas)
     {
         $this->_ds->insert($datas);
-        return $this;
+        return $datas;
     }
 
     public function update($query, $datas)
