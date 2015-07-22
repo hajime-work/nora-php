@@ -34,6 +34,16 @@ class Response extends Base
     }
 
     /**
+     * キャッシュヘッダーを付与する[キャッシュさせない]
+     */
+    public function nocache( )
+    {
+        $this->header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
+        $this->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this;
+    }
+
+    /**
      * ファイルを送信する
      *
      * @param string $file

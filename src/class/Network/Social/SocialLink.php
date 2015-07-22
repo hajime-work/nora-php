@@ -15,7 +15,7 @@ class SocialLink
         return $base.'?'.http_build_query($params);
     }
 
-    public function facebookShare($body, $url = null)
+    public function facebookShare($url = null, $body = null)
     {
         $base = 'https://www.facebook.com/sharer/sharer.php';
 
